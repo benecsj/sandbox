@@ -368,14 +368,14 @@ def generate_group_rst(
         lines.append(f"      :id: TSS_{component}_oAW_{group_conv}_Tests_{id2}")
         lines.append("      :collapse: true")
         if hdr.placeholder:
-            rst_name = f"{p.stem}.rst"
-            lines.append(f"      :tests: TODO:Update the Requirements field in the header of {rst_name}")
+            tsc_name = p.name
+            lines.append(f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}")
             lines.append("      ")
-            lines.append(f"      Description: TODO:Update the Description field in the header of {rst_name}")
+            lines.append(f"      Description: TODO:Update the Description field in the header of {tsc_name}")
             lines.append("      ")
-            lines.append(f"      Input: TODO:Update the Input field in the header of {rst_name}")
+            lines.append(f"      Input: TODO:Update the Input field in the header of {tsc_name}")
             lines.append("")
-            lines.append(f"      Output: TODO:Update the Output field in the header of {rst_name}")
+            lines.append(f"      Output: TODO:Update the Output field in the header of {tsc_name}")
         else:
             # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
             per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)

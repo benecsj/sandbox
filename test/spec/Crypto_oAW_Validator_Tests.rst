@@ -46,3 +46,18 @@ Crypto_oAW_Validator_Tests
       Input: Crypto module configuration set.
 
       Output: Validation report without errors.
+
+   .. sw_test_step:: Crypto_Validate_EmptyHeader.tsc
+      :id: TSS_Crypto_oAW_Validator_Tests_0003
+      :collapse: true
+
+   .. sw_test_step:: 1
+      :id: TSS_Crypto_oAW_Validator_Tests_0004
+      :collapse: true
+      :tests: TODO:Update the Requirements field in the header of Crypto_Validate_EmptyHeader.tsc
+      
+      Description: TODO:Update the Description field in the header of Crypto_Validate_EmptyHeader.tsc
+      
+      Input: TODO:Update the Input field in the header of Crypto_Validate_EmptyHeader.tsc
+
+      Output: TODO:Update the Output field in the header of Crypto_Validate_EmptyHeader.tsc
