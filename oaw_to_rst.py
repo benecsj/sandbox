@@ -87,7 +87,8 @@ def discover_tsc_files(config: Config) -> List[Path]:
     for path in config.test_path.rglob("*.tsc"):
         if path.name.startswith(prefix):
             results.append(path.resolve())
-    results.sort(key=lambda p: p.name)
+    # Sort by full path string for deterministic ordering across directories
+    results.sort(key=lambda p: str(p))
     for p in results:
         print(str(p))
     if not results:
@@ -107,7 +108,8 @@ def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str,
         groups.setdefault(group, []).append(file_path)
     # Sort deterministically
     for group_name in groups:
-        groups[group_name].sort(key=lambda p: p.name)
+        groups[group_name].sort(key=lambda p: str(p))
+    # Return dict with sorted keys to keep deterministic iteration order
     return dict(sorted(groups.items(), key=lambda kv: kv[0]))
 
 
@@ -257,16 +259,10 @@ def parse_tsc_header(path: Path) -> TscHeader:
             print(f"ERROR Missing {key.capitalize()} in header: {path}", file=sys.stderr)
             sys.exit(1)
 
-    # Post-process requirements: split on commas and whitespace
+    # Post-process requirements: split on commas and whitespace, dedupe and sort
     req_line = " ".join(sections["requirements"]).replace(",", " ")
     tags_raw = [t.strip() for t in req_line.split() if t.strip()]
-    # Deduplicate preserving order
-    seen = set()
-    tags: List[str] = []
-    for t in tags_raw:
-        if t not in seen:
-            seen.add(t)
-            tags.append(t)
+    tags = sorted(set(tags_raw))
 
     if not tags:
         print(f"ERROR Requirements must contain at least one tag in {path}", file=sys.stderr)
@@ -314,16 +310,14 @@ def generate_group_rst(
 
     # Parse headers and accumulate tags
     parsed: List[Tuple[Path, TscHeader]] = []
-    all_tags: List[str] = []
-    seen = set()
+    all_tags_set = set()
     for p in tsc_files:
         hdr = parse_tsc_header(p)
         parsed.append((p, hdr))
         for t in hdr.requirements:
-            if t not in seen:
-                seen.add(t)
-                all_tags.append(t)
+            all_tags_set.add(t)
 
+    all_tags = sorted(all_tags_set)
     tests_agg = format_tests_value(all_tags)
 
     # Build content
@@ -367,6 +361,7 @@ def generate_group_rst(
         lines.append("   .. sw_test_step:: 1")
         lines.append(f"      :id: TSS_{component}_oAW_{group_conv}_Tests_{id2}")
         lines.append("      :collapse: true")
+        # Per-file tags already sorted in parse_tsc_header
         per_file_tests = format_tests_value(hdr.requirements)
         lines.append(f"      :tests: {per_file_tests}")
         lines.append("      ")

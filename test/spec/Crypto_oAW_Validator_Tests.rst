@@ -14,7 +14,7 @@ Crypto_oAW_Validator_Tests
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: BSW_SWCS_CryptoDriver_Crypto-7001 BSW_SWCS_CryptoDriver_Crypto-5770
+   :tests: BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-7001
 
    See descriptions below
 
@@ -25,7 +25,7 @@ Crypto_oAW_Validator_Tests
    .. sw_test_step:: 1
       :id: TSS_Crypto_oAW_Validator_Tests_0002
       :collapse: true
-      :tests: BSW_SWCS_CryptoDriver_Crypto-7001 BSW_SWCS_CryptoDriver_Crypto-5770
+      :tests: BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-7001
       
       Description: Validates configuration files for crypto modules.
       
