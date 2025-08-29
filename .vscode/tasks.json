@@ -1,0 +1,64 @@
+{
+  // VS Code Tasks to run generator and tests
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run oaw_to_rst.py",
+      "type": "shell",
+      "command": "python ${workspaceFolder}/oaw_to_rst.py",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [
+        {
+          "fileLocation": [
+            "absolute"
+          ],
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)\\) (.+)$",
+              "file": 1,
+              "line": 2,
+              "severity": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Run run_test.py",
+      "type": "shell",
+      "command": "python ${workspaceFolder}/run_test.py",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [
+        {
+          "fileLocation": [
+            "absolute"
+          ],
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)\\) (.+)$",
+              "file": 1,
+              "line": 2,
+              "severity": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

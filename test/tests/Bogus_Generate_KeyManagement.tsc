@@ -1,0 +1,10 @@
+// Description
+// Validates code generation for key management components.
+// Input
+// Key management configuration set.
+// Output
+// Generated key management sources and headers.
+// Requirements
+// BSW_SEC_ModulesHere_Bogus-8001, BSW_SEC_ModulesHere_Bogus-5770
+
+# body intentionally omitted
