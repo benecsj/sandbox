@@ -305,6 +305,22 @@ def format_tests_value(tags: List[str], delimiter: str = ", ", max_width: int = 
     return ("\n" + indent).join(lines)
 
 
+def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -> List[str]:
+    lines: List[str] = []
+    indent = " " * base_indent_spaces
+    value_indent = " " * (base_indent_spaces + len(label) + 2)  # account for ': '
+    parts = text.splitlines() if text else [""]
+    if parts:
+        # First line with label
+        lines.append(f"{indent}{label}: {parts[0] if parts[0] else ''}")
+        # Continuation lines aligned under value start
+        for cont in parts[1:]:
+            lines.append(f"{value_indent}{cont}")
+    else:
+        lines.append(f"{indent}{label}:")
+    return lines
+
+
 def generate_group_rst(
     component: str,
     group: str,
@@ -371,21 +387,21 @@ def generate_group_rst(
             tsc_name = p.name
             lines.append(f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}")
             lines.append("      ")
-            lines.append(f"      Description: TODO:Update the Description field in the header of {tsc_name}")
+            lines.extend(format_multiline_field("Description", f"TODO:Update the Description field in the header of {tsc_name}", base_indent_spaces=6))
             lines.append("      ")
-            lines.append(f"      Input: TODO:Update the Input field in the header of {tsc_name}")
+            lines.extend(format_multiline_field("Input", f"TODO:Update the Input field in the header of {tsc_name}", base_indent_spaces=6))
             lines.append("")
-            lines.append(f"      Output: TODO:Update the Output field in the header of {tsc_name}")
+            lines.extend(format_multiline_field("Output", f"TODO:Update the Output field in the header of {tsc_name}", base_indent_spaces=6))
         else:
             # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
             per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
             lines.append(f"      :tests: {per_file_tests}")
             lines.append("      ")
-            lines.append(f"      Description: {hdr.description}")
+            lines.extend(format_multiline_field("Description", hdr.description, base_indent_spaces=6))
             lines.append("      ")
-            lines.append(f"      Input: {hdr.input_text}")
+            lines.extend(format_multiline_field("Input", hdr.input_text, base_indent_spaces=6))
             lines.append("")
-            lines.append(f"      Output: {hdr.output_text}")
+            lines.extend(format_multiline_field("Output", hdr.output_text, base_indent_spaces=6))
         lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"

@@ -44,13 +44,13 @@ Crypto_oAW_Generator_Tests
       :tests: BSW_SWCS_CryptoDriver_Crypto-5770, BSW_SWCS_CryptoDriver_Crypto-9001
       
       Description: This is a multi-line description for the generator test.
-It spans multiple lines to validate parsing behavior.
+                   It spans multiple lines to validate parsing behavior.
       
       Input: First line of input description.
-Second line of input description.
+             Second line of input description.
 
       Output: First line of output description.
-Second line of output description.
+              Second line of output description.
 
    .. sw_test_step:: Crypto_Generate_Primitives.tsc
       :id: TSS_Crypto_oAW_Generator_Tests_0005
@@ -62,7 +62,7 @@ Second line of output description.
       :tests: BSW_SWCS_CryptoDriver_Crypto-5048, BSW_SWCS_CryptoDriver_Crypto-5770
       
       Description: Validates code generation for basic crypto primitives
-across supported targets.
+                   across supported targets.
       
       Input: Configurations for AES/HMAC primitive generation.
 

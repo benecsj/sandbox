@@ -195,6 +195,11 @@ def main() -> int:
     results.append(assert_contains_substring(gen, "Output: First line of output description."))
     results.append(assert_contains_substring(gen, "Second line of output description."))
 
+    # Indentation for continuation lines (Description/Input/Output follow-up aligned under value start)
+    results.append(assert_regex(gen, r"^\s{19}It spans multiple lines to validate parsing behavior\.") )
+    results.append(assert_regex(gen, r"^\s{13}Second line of input description\.") )
+    results.append(assert_regex(gen, r"^\s{14}Second line of output description\.") )
+
     # Summarize
     failed = [r for r in results if not r.passed]
     for r in results:
