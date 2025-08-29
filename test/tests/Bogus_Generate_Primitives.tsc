@@ -1,11 +1,11 @@
 // Description
-// Validates code generation for basic crypto primitives
+// Validates code generation for basic bogus primitives
 // across supported targets.
 // Input
 // Configurations for AES/HMAC primitive generation.
 // Output
 // Generated source files and headers for primitives.
 // Requirements
-// BSW_SWCS_CryptoDriver_Crypto-5048, BSW_SWCS_CryptoDriver_Crypto-5770
+// BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770
 
 # body intentionally omitted

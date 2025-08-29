@@ -1,0 +1,10 @@
+// Description
+// Ensures generated bogus primitives compile without errors.
+// Input
+// Generated bogus primitive sources.
+// Output
+// Successful compilation artifacts without warnings treated as errors.
+// Requirements
+// BSW_SEC_ModulesHere_Bogus-5770 BSW_SEC_ModulesHere_Bogus-6001
+
+# body intentionally omitted

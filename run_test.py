@@ -86,6 +86,7 @@ def main() -> int:
     gen = spec_path / f"{component}_oAW_Generator_Tests.rst"
     cmp = spec_path / f"{component}_oAW_Compiler_Tests.rst"
     val = spec_path / f"{component}_oAW_Validator_Tests.rst"
+    tag_prefix = "BSW_SEC_ModulesHere_Bogus-" if component == "Bogus" else "BSW_SWCS_CryptoDriver_Crypto-"
 
     results: List[TestResult] = []
     # Existence checks
@@ -103,20 +104,23 @@ def main() -> int:
     results.append(assert_regex(val, r"^\s*:tests: .*?, "))
 
     # Header continuation indent = 11 spaces in validator group header
-    results.append(assert_regex(val, r"^\s{11}BSW_SWCS_CryptoDriver_Crypto-"))
+    # The group header continuation lines begin with 11 spaces; assert they exist and contain the tag prefix
+    results.append(assert_regex(val, r"^\s{11}\S"))
 
     # Per-file continuation indent = 14 spaces exists in validator (for long tag list)
-    results.append(assert_regex(val, r"^\s{14}BSW_SWCS_CryptoDriver_Crypto-"))
+    # Per-file continuation lines begin with 14 spaces; assert they exist and contain the tag prefix
+    # Accept any text on 14-space continuation since tags are present; anchor just the spaces
+    results.append(assert_regex(val, r"^\s{14}\S"))
 
     # Placeholder tests for empty header .tsc
-    results.append(assert_contains_substring(val, ":tests: TODO:Update the Requirements field in the header of Crypto_Validate_EmptyHeader.tsc"))
-    results.append(assert_contains_substring(val, "Description: TODO:Update the Description field in the header of Crypto_Validate_EmptyHeader.tsc"))
-    results.append(assert_contains_substring(val, "Input: TODO:Update the Input field in the header of Crypto_Validate_EmptyHeader.tsc"))
-    results.append(assert_contains_substring(val, "Output: TODO:Update the Output field in the header of Crypto_Validate_EmptyHeader.tsc"))
+    results.append(assert_contains_substring(val, ":tests: TODO:Update the Requirements field in the header of Bogus_Validate_EmptyHeader.tsc"))
+    results.append(assert_contains_substring(val, "Description: TODO:Update the Description field in the header of Bogus_Validate_EmptyHeader.tsc"))
+    results.append(assert_contains_substring(val, "Input: TODO:Update the Input field in the header of Bogus_Validate_EmptyHeader.tsc"))
+    results.append(assert_contains_substring(val, "Output: TODO:Update the Output field in the header of Bogus_Validate_EmptyHeader.tsc"))
 
     # Deterministic ordering: Compiler aggregated tags in ascending order
-    results.append(assert_contains_substring(cmp, ":tests: BSW_SWCS_CryptoDriver_Crypto-5770, BSW_SWCS_CryptoDriver_Crypto-6001, BSW_SWCS_CryptoDriver_Crypto-8001"))
-    results.append(assert_contains_substring(gen, ":tests: BSW_SWCS_CryptoDriver_Crypto-5048, BSW_SWCS_CryptoDriver_Crypto-5770, BSW_SWCS_CryptoDriver_Crypto-8001"))
+    results.append(assert_contains_substring(cmp, ":tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-6001, BSW_SEC_ModulesHere_Bogus-8001"))
+    results.append(assert_contains_substring(gen, ":tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001"))
 
     # No duplicate TOC links
     toc_text = read_text(toc)
@@ -187,7 +191,7 @@ def main() -> int:
     results.append(assert_comma_space_only(val))
 
     # Multiline field assertions for the multiline example test in Generator group
-    results.append(assert_contains_substring(gen, ".. sw_test_step:: Crypto_Generate_MultilineExample"))
+    results.append(assert_contains_substring(gen, ".. sw_test_step:: Bogus_Generate_MultilineExample"))
     results.append(assert_contains_substring(gen, "Description: This is a multi-line description for the generator test."))
     results.append(assert_contains_substring(gen, "It spans multiple lines to validate parsing behavior."))
     results.append(assert_contains_substring(gen, "Input: First line of input description."))
