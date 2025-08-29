@@ -248,19 +248,12 @@ def parse_tsc_header(path: Path) -> TscHeader:
     # Determine if this is a placeholder-only header (all sections present but empty)
     all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
 
-    # Validate required sections when not a placeholder-only header
-    if not all_present_empty:
-        for key in expected_order:
-            if not sections[key]:
-                report_error(path, 1, 1405, f"Missing {key.capitalize()} in header")
-
     # Post-process requirements: split on commas and whitespace, dedupe and sort
     req_line = " ".join(sections["requirements"]).replace(",", " ")
     tags_raw = [t.strip() for t in req_line.split() if t.strip()]
     tags = sorted(set(tags_raw))
 
-    if not tags and not all_present_empty:
-        report_error(path, 1, 1406, "Requirements must contain at least one tag")
+    # Allow empty requirements if other fields are present; TODO placeholders will be generated later
 
     return TscHeader(
         description="\n".join(sections["description"]).strip(),
