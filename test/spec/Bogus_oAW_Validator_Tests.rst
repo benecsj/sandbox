@@ -25,6 +25,7 @@ Bogus_oAW_Validator_Tests
 
    See descriptions below
 
+
    .. sw_test_step:: Bogus_Validate_Config
       :id: TSS_Bogus_oAW_Validator_Tests_0001
       :collapse: true
@@ -47,6 +48,7 @@ Bogus_oAW_Validator_Tests
 
       Output: Validation report without errors.
 
+
    .. sw_test_step:: Bogus_Validate_EmptyHeader
       :id: TSS_Bogus_oAW_Validator_Tests_0003
       :collapse: true
@@ -61,3 +63,6 @@ Bogus_oAW_Validator_Tests
       Input: TODO:Update the Input field in the header of Bogus_Validate_EmptyHeader.tsc
 
       Output: TODO:Update the Output field in the header of Bogus_Validate_EmptyHeader.tsc
+
+
+

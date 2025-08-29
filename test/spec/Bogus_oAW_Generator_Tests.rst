@@ -19,6 +19,7 @@ Bogus_oAW_Generator_Tests
 
    See descriptions below
 
+
    .. sw_test_step:: Bogus_Generate_KeyManagement
       :id: TSS_Bogus_oAW_Generator_Tests_0001
       :collapse: true
@@ -33,6 +34,7 @@ Bogus_oAW_Generator_Tests
       Input: Key management configuration set.
 
       Output: Generated key management sources and headers.
+
 
    .. sw_test_step:: Bogus_Generate_MultilineExample
       :id: TSS_Bogus_oAW_Generator_Tests_0003
@@ -52,6 +54,7 @@ Bogus_oAW_Generator_Tests
       Output: First line of output description.
               Second line of output description.
 
+
    .. sw_test_step:: Bogus_Generate_Primitives
       :id: TSS_Bogus_oAW_Generator_Tests_0005
       :collapse: true
@@ -67,3 +70,6 @@ Bogus_oAW_Generator_Tests
       Input: Configurations for AES/HMAC primitive generation.
 
       Output: Generated source files and headers for primitives.
+
+
+

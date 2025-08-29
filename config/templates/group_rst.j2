@@ -1,0 +1,38 @@
+{{ title }}
+{{ underline }}
+
+{{ section }}
+{{ '-' * section|length }}
+
+.. sw_test:: {{ section }}
+   :id: TS_{{ section }}
+   :tst_shortdescription: Tests for successful {{ group }} of {{ component }}
+   :tst_level: Component Requirement Test
+   :tst_designdoc: {{ component }}_VerificationDocumentation.docx
+   :tst_envconditions: oAW on PC
+   :tst_method: Interface tests/API tests
+   :tst_preparation: nothing specific
+   :tst_type: Manual
+   :tst_env: Generator-Test
+   :tests: {{ tests_agg }}
+
+   See descriptions below
+
+{% for step in steps %}
+   .. sw_test_step:: {{ step.file_display_name }}
+      :id: TSS_{{ section }}_{{ step.id1 }}
+      :collapse: true
+
+   .. sw_test_step:: 1
+      :id: TSS_{{ section }}_{{ step.id2 }}
+      :collapse: true
+{{ step.tests_line }}
+      
+{{ step.desc_lines | join('\n') }}
+      
+{{ step.input_lines | join('\n') }}
+
+{{ step.output_lines | join('\n') }}
+
+{% endfor %}
+

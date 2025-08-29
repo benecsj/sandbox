@@ -1,0 +1,5 @@
+{
+  "component": "Bogus",
+  "test_path": "../test/tests",
+  "spec_path": "../test/spec"
+}
