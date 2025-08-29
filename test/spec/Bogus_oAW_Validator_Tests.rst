@@ -14,13 +14,13 @@ Bogus_oAW_Validator_Tests
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-7001, BSW_SEC_ModulesHere_Bogus-7010
-           BSW_SEC_ModulesHere_Bogus-7020, BSW_SEC_ModulesHere_Bogus-7030, BSW_SEC_ModulesHere_Bogus-7040
-           BSW_SEC_ModulesHere_Bogus-7050, BSW_SEC_ModulesHere_Bogus-7060, BSW_SEC_ModulesHere_Bogus-7070
-           BSW_SEC_ModulesHere_Bogus-7080, BSW_SEC_ModulesHere_Bogus-7090, BSW_SEC_ModulesHere_Bogus-7100
-           BSW_SEC_ModulesHere_Bogus-7110, BSW_SEC_ModulesHere_Bogus-7120, BSW_SEC_ModulesHere_Bogus-7130
-           BSW_SEC_ModulesHere_Bogus-7140, BSW_SEC_ModulesHere_Bogus-7150, BSW_SEC_ModulesHere_Bogus-7160
-           BSW_SEC_ModulesHere_Bogus-7170, BSW_SEC_ModulesHere_Bogus-7180, BSW_SEC_ModulesHere_Bogus-7190
+   :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-7001, BSW_SEC_ModulesHere_Bogus-7010,
+           BSW_SEC_ModulesHere_Bogus-7020, BSW_SEC_ModulesHere_Bogus-7030, BSW_SEC_ModulesHere_Bogus-7040,
+           BSW_SEC_ModulesHere_Bogus-7050, BSW_SEC_ModulesHere_Bogus-7060, BSW_SEC_ModulesHere_Bogus-7070,
+           BSW_SEC_ModulesHere_Bogus-7080, BSW_SEC_ModulesHere_Bogus-7090, BSW_SEC_ModulesHere_Bogus-7100,
+           BSW_SEC_ModulesHere_Bogus-7110, BSW_SEC_ModulesHere_Bogus-7120, BSW_SEC_ModulesHere_Bogus-7130,
+           BSW_SEC_ModulesHere_Bogus-7140, BSW_SEC_ModulesHere_Bogus-7150, BSW_SEC_ModulesHere_Bogus-7160,
+           BSW_SEC_ModulesHere_Bogus-7170, BSW_SEC_ModulesHere_Bogus-7180, BSW_SEC_ModulesHere_Bogus-7190,
            BSW_SEC_ModulesHere_Bogus-7200, BSW_SEC_ModulesHere_Bogus-7210, BSW_SEC_ModulesHere_Bogus-7220
 
    See descriptions below
@@ -32,13 +32,13 @@ Bogus_oAW_Validator_Tests
    .. sw_test_step:: 1
       :id: TSS_Bogus_oAW_Validator_Tests_0002
       :collapse: true
-      :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-7001, BSW_SEC_ModulesHere_Bogus-7010
-              BSW_SEC_ModulesHere_Bogus-7020, BSW_SEC_ModulesHere_Bogus-7030, BSW_SEC_ModulesHere_Bogus-7040
-              BSW_SEC_ModulesHere_Bogus-7050, BSW_SEC_ModulesHere_Bogus-7060, BSW_SEC_ModulesHere_Bogus-7070
-              BSW_SEC_ModulesHere_Bogus-7080, BSW_SEC_ModulesHere_Bogus-7090, BSW_SEC_ModulesHere_Bogus-7100
-              BSW_SEC_ModulesHere_Bogus-7110, BSW_SEC_ModulesHere_Bogus-7120, BSW_SEC_ModulesHere_Bogus-7130
-              BSW_SEC_ModulesHere_Bogus-7140, BSW_SEC_ModulesHere_Bogus-7150, BSW_SEC_ModulesHere_Bogus-7160
-              BSW_SEC_ModulesHere_Bogus-7170, BSW_SEC_ModulesHere_Bogus-7180, BSW_SEC_ModulesHere_Bogus-7190
+      :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-7001, BSW_SEC_ModulesHere_Bogus-7010,
+              BSW_SEC_ModulesHere_Bogus-7020, BSW_SEC_ModulesHere_Bogus-7030, BSW_SEC_ModulesHere_Bogus-7040,
+              BSW_SEC_ModulesHere_Bogus-7050, BSW_SEC_ModulesHere_Bogus-7060, BSW_SEC_ModulesHere_Bogus-7070,
+              BSW_SEC_ModulesHere_Bogus-7080, BSW_SEC_ModulesHere_Bogus-7090, BSW_SEC_ModulesHere_Bogus-7100,
+              BSW_SEC_ModulesHere_Bogus-7110, BSW_SEC_ModulesHere_Bogus-7120, BSW_SEC_ModulesHere_Bogus-7130,
+              BSW_SEC_ModulesHere_Bogus-7140, BSW_SEC_ModulesHere_Bogus-7150, BSW_SEC_ModulesHere_Bogus-7160,
+              BSW_SEC_ModulesHere_Bogus-7170, BSW_SEC_ModulesHere_Bogus-7180, BSW_SEC_ModulesHere_Bogus-7190,
               BSW_SEC_ModulesHere_Bogus-7200, BSW_SEC_ModulesHere_Bogus-7210, BSW_SEC_ModulesHere_Bogus-7220
       
       Description: Validates configuration files for bogus modules.

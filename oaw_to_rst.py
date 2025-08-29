@@ -317,21 +317,25 @@ def parse_tsc_header(path: Path) -> TscHeader:
 
 def format_tests_value(
     tags: List[str],
-    delimiter: str = ", ",
+    delimiter: str = " ",
     max_width: int = 120,
     indent_spaces: int = 11,
 ) -> str:
-    text = delimiter.join(tags)
+    # Build tokens so that every tag except the last has a trailing comma
+    tokens: List[str] = [
+        (f"{tag}," if idx < len(tags) - 1 else tag) for idx, tag in enumerate(tags)
+    ]
+    text = delimiter.join(tokens)
     if len(text) <= max_width:
         return text
     # Create wrapped lines with specific indentation for subsequent lines
     lines: List[str] = []
     current_line = ""
-    for tag in tags:
-        candidate = tag if not current_line else current_line + delimiter + tag
+    for token in tokens:
+        candidate = token if not current_line else current_line + delimiter + token
         if len(candidate) > max_width and current_line:
             lines.append(current_line)
-            current_line = tag
+            current_line = token
         else:
             current_line = candidate
     if current_line:
@@ -378,7 +382,7 @@ def generate_group_rst(
 
     all_tags = sorted(all_tags_set)
     tests_agg = format_tests_value(
-        all_tags, delimiter=", ", max_width=120, indent_spaces=11
+        all_tags, delimiter=" ", max_width=120, indent_spaces=11
     )
 
     # Build content
@@ -454,10 +458,10 @@ def generate_group_rst(
                 )
             )
         else:
-            # Per-file tags: if empty, emit TODO; otherwise, format comma-separated with 14-space continuation
+            # Per-file tags: if empty, emit TODO; otherwise, format with trailing commas and 14-space continuation
             if hdr.requirements:
                 per_file_tests = format_tests_value(
-                    hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14
+                    hdr.requirements, delimiter=" ", max_width=120, indent_spaces=14
                 )
                 lines.append(f"      :tests: {per_file_tests}")
             else:

@@ -14,7 +14,7 @@ Bogus_oAW_Generator_Tests
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001
+   :tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001,
            BSW_SEC_ModulesHere_Bogus-9001
 
    See descriptions below
