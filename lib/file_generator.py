@@ -4,9 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple
 
-from jinja2 import Environment, FileSystemLoader
-
-from .utils import report_error, report_warning
+from .utils import report_error, report_warning, ensure_jinja2_installed
 from .file_handler import TscHeader
 
 
@@ -180,6 +178,9 @@ def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscH
         })
 
     # Prepare template environment
+    ensure_jinja2_installed()
+    from jinja2 import Environment, FileSystemLoader
+
     env = Environment(
         loader=FileSystemLoader(str(template_dir)),
         autoescape=False,
@@ -187,7 +188,7 @@ def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscH
         lstrip_blocks=False,
         keep_trailing_newline=True,
     )
-    template = env.get_template("group_rst.j2")
+    template = env.get_template("oaw_test_group.rst.j2")
 
     title = f"{group_conv} Test Specification - oAW tests"
     section = f"{component}_oAW_{group_conv}_Tests"

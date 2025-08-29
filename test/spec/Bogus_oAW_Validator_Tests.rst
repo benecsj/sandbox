@@ -41,9 +41,9 @@ Bogus_oAW_Validator_Tests
               BSW_SEC_ModulesHere_Bogus-7140, BSW_SEC_ModulesHere_Bogus-7150, BSW_SEC_ModulesHere_Bogus-7160,
               BSW_SEC_ModulesHere_Bogus-7170, BSW_SEC_ModulesHere_Bogus-7180, BSW_SEC_ModulesHere_Bogus-7190,
               BSW_SEC_ModulesHere_Bogus-7200, BSW_SEC_ModulesHere_Bogus-7210, BSW_SEC_ModulesHere_Bogus-7220
-      
+
       Description: Validates configuration files for bogus modules.
-      
+
       Input: Bogus module configuration set.
 
       Output: Validation report without errors.
@@ -57,12 +57,11 @@ Bogus_oAW_Validator_Tests
       :id: TSS_Bogus_oAW_Validator_Tests_0004
       :collapse: true
       :tests: TODO:Update the Requirements field in the header of Bogus_Validate_EmptyHeader.tsc
-      
+
       Description: TODO:Update the Description field in the header of Bogus_Validate_EmptyHeader.tsc
-      
+
       Input: TODO:Update the Input field in the header of Bogus_Validate_EmptyHeader.tsc
 
       Output: TODO:Update the Output field in the header of Bogus_Validate_EmptyHeader.tsc
-
 
 
