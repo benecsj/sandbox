@@ -51,7 +51,9 @@ def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
         report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
 
 
-def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path, group_name_mappings: Dict[str, str]) -> None:
+def append_group_links_to_toc(
+    component: str, groups: List[str], toc_path: Path, group_name_mappings: Dict[str, str]
+) -> None:
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -61,7 +63,7 @@ def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path,
     for group in groups:
         group_conv = convert_group_name(group, group_name_mappings)
         filename = f"{component}_oAW_{group_conv}_Tests.rst"
-        appended_lines.append("   "+filename)
+        appended_lines.append("   " + filename)
 
     if not text.endswith("\n"):
         text += "\n"
@@ -73,7 +75,9 @@ def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path,
 
 
 def format_tests_value(tags: List[str], delimiter: str, max_width: int, indent_spaces: int) -> str:
-    tokens: List[str] = [(f"{tag}," if idx < len(tags) - 1 else tag) for idx, tag in enumerate(tags)]
+    tokens: List[str] = [
+        (f"{tag}," if idx < len(tags) - 1 else tag) for idx, tag in enumerate(tags)
+    ]
     text = delimiter.join(tokens)
     if len(text) <= max_width:
         return text
@@ -108,7 +112,14 @@ def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -
     return lines
 
 
-def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscHeader]], toc_dir: Path, template_dir: Path, group_name_mappings: Dict[str, str]) -> Path:
+def generate_group_rst(
+    component: str,
+    group: str,
+    parsed: List[Tuple[Path, TscHeader]],
+    toc_dir: Path,
+    template_dir: Path,
+    group_name_mappings: Dict[str, str],
+) -> Path:
     group_conv = convert_group_name(group, group_name_mappings)
     out_path = toc_dir / f"{component}_oAW_{group_conv}_Tests.rst"
 
@@ -125,54 +136,132 @@ def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscH
     counter = 1
     for p, hdr in parsed:
         file_display_name = p.stem
-        id1 = f"{counter:04d}"; counter += 1
-        id2 = f"{counter:04d}"; counter += 1
+        id1 = f"{counter:04d}"
+        counter += 1
+        id2 = f"{counter:04d}"
+        counter += 1
 
         if hdr.placeholder:
             tsc_name = p.name
-            report_warning(p, hdr.requirements_line, 2001, "Missing Requirements content; emitting TODO in RST")
-            tests_line = f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}"
-            report_warning(p, hdr.desc_line, 2002, "Missing Description content; emitting TODO in RST")
-            desc_lines = format_multiline_field("Description", f"TODO:Update the Description field in the header of {tsc_name}", base_indent_spaces=6)
-            report_warning(p, hdr.input_line, 2003, "Missing Input content; emitting TODO in RST")
-            input_lines = format_multiline_field("Input", f"TODO:Update the Input field in the header of {tsc_name}", base_indent_spaces=6)
-            report_warning(p, hdr.output_line, 2004, "Missing Output content; emitting TODO in RST")
-            output_lines = format_multiline_field("Output", f"TODO:Update the Output field in the header of {tsc_name}", base_indent_spaces=6)
+            report_warning(
+                p,
+                hdr.requirements_line,
+                2001,
+                "Missing Requirements content; emitting TODO in test specification rst file",
+            )
+            tests_line = (
+                f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}"
+            )
+            report_warning(
+                p,
+                hdr.desc_line,
+                2002,
+                "Missing Description content; emitting TODO in test specification rst file",
+            )
+            desc_lines = format_multiline_field(
+                "Description",
+                f"TODO:Update the Description field in the header of {tsc_name}",
+                base_indent_spaces=6,
+            )
+            report_warning(
+                p,
+                hdr.input_line,
+                2003,
+                "Missing Input content; emitting TODO in test specification rst file",
+            )
+            input_lines = format_multiline_field(
+                "Input",
+                f"TODO:Update the Input field in the header of {tsc_name}",
+                base_indent_spaces=6,
+            )
+            report_warning(
+                p,
+                hdr.output_line,
+                2004,
+                "Missing Output content; emitting TODO in test specification rst file",
+            )
+            output_lines = format_multiline_field(
+                "Output",
+                f"TODO:Update the Output field in the header of {tsc_name}",
+                base_indent_spaces=6,
+            )
         else:
             if hdr.requirements:
-                per_file_tests = format_tests_value(hdr.requirements, delimiter=" ", max_width=120, indent_spaces=14)
+                per_file_tests = format_tests_value(
+                    hdr.requirements, delimiter=" ", max_width=120, indent_spaces=14
+                )
                 tests_line = f"      :tests: {per_file_tests}"
             else:
-                report_warning(p, hdr.requirements_line, 2001, "Missing Requirements content; emitting TODO in RST")
-                tests_line = f"      :tests: TODO:Update the Requirements field in the header of {p.name}"
+                report_warning(
+                    p,
+                    hdr.requirements_line,
+                    2001,
+                    "Missing Requirements content; emitting TODO in test specification rst file",
+                )
+                tests_line = (
+                    f"      :tests: TODO:Update the Requirements field in the header of {p.name}"
+                )
 
             if hdr.description:
-                desc_lines = format_multiline_field("Description", hdr.description, base_indent_spaces=6)
+                desc_lines = format_multiline_field(
+                    "Description", hdr.description, base_indent_spaces=6
+                )
             else:
-                report_warning(p, hdr.desc_line, 2002, "Missing Description content; emitting TODO in RST")
-                desc_lines = format_multiline_field("Description", f"TODO:Update the Description field in the header of {p.name}", base_indent_spaces=6)
+                report_warning(
+                    p,
+                    hdr.desc_line,
+                    2002,
+                    "Missing Description content; emitting TODO in test specification rst file",
+                )
+                desc_lines = format_multiline_field(
+                    "Description",
+                    f"TODO:Update the Description field in the header of {p.name}",
+                    base_indent_spaces=6,
+                )
 
             if hdr.input_text:
                 input_lines = format_multiline_field("Input", hdr.input_text, base_indent_spaces=6)
             else:
-                report_warning(p, hdr.input_line, 2003, "Missing Input content; emitting TODO in RST")
-                input_lines = format_multiline_field("Input", f"TODO:Update the Input field in the header of {p.name}", base_indent_spaces=6)
+                report_warning(
+                    p,
+                    hdr.input_line,
+                    2003,
+                    "Missing Input content; emitting TODO in test specification rst file",
+                )
+                input_lines = format_multiline_field(
+                    "Input",
+                    f"TODO:Update the Input field in the header of {p.name}",
+                    base_indent_spaces=6,
+                )
 
             if hdr.output_text:
-                output_lines = format_multiline_field("Output", hdr.output_text, base_indent_spaces=6)
+                output_lines = format_multiline_field(
+                    "Output", hdr.output_text, base_indent_spaces=6
+                )
             else:
-                report_warning(p, hdr.output_line, 2004, "Missing Output content; emitting TODO in RST")
-                output_lines = format_multiline_field("Output", f"TODO:Update the Output field in the header of {p.name}", base_indent_spaces=6)
+                report_warning(
+                    p,
+                    hdr.output_line,
+                    2004,
+                    "Missing Output content; emitting TODO in test specification rst file",
+                )
+                output_lines = format_multiline_field(
+                    "Output",
+                    f"TODO:Update the Output field in the header of {p.name}",
+                    base_indent_spaces=6,
+                )
 
-        steps.append({
-            "file_display_name": file_display_name,
-            "id1": id1,
-            "id2": id2,
-            "tests_line": tests_line,
-            "desc_lines": desc_lines,
-            "input_lines": input_lines,
-            "output_lines": output_lines,
-        })
+        steps.append(
+            {
+                "file_display_name": file_display_name,
+                "id1": id1,
+                "id2": id2,
+                "tests_line": tests_line,
+                "desc_lines": desc_lines,
+                "input_lines": input_lines,
+                "output_lines": output_lines,
+            }
+        )
 
     # Prepare template environment
     ensure_jinja2_installed()

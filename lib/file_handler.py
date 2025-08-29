@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from .config_handler import Config
-from .utils import report_error
+from .utils import report_error, collect_error
 
 
 def validate_paths(config: Config) -> None:
@@ -38,7 +38,8 @@ def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str,
         stem = file_path.stem
         parts = stem.split("_")
         if len(parts) < 3 or parts[0] != component:
-            report_error(file_path, 1, 1201, "No valid group token in filename")
+            collect_error(file_path, 1, 1201, "No valid group token in filename")
+            continue
         group = parts[1]
         groups.setdefault(group, []).append(file_path)
     for group_name in groups:
@@ -59,11 +60,12 @@ class TscHeader:
     requirements_line: int
 
 
-def parse_tsc_header(path: Path) -> TscHeader:
+def parse_tsc_header(path: Path) -> TscHeader | None:
     try:
         text = path.read_text(encoding="utf-8")
     except Exception as ex:
-        report_error(path, 1, 1401, f"Failed to read .tsc file: {ex}")
+        collect_error(path, 1, 1401, f"Failed to read .tsc file: {ex}")
+        return None
 
     lines = text.splitlines()
     idx = 0
@@ -96,25 +98,29 @@ def parse_tsc_header(path: Path) -> TscHeader:
             if header_match:
                 name = header_match.group(1).lower()
                 if order_index >= len(expected_order) or name != expected_order[order_index]:
-                    report_error(path, idx + 1, 1402, f"Unexpected or out-of-order section '{name}'")
+                    collect_error(path, idx + 1, 1402, f"Unexpected or out-of-order section '{name}'")
+                    return None
                 current = name
                 order_index += 1
                 seen_tokens.add(name)
                 header_lines[name] = idx + 1
             else:
                 if current is None:
-                    report_error(path, idx + 1, 1403, "Header must start with 'Description'")
+                    collect_error(path, idx + 1, 1403, "Header must start with 'Description'")
+                    return None
                 sections[current].append(content.rstrip())
             idx += 1
             continue
         else:
             if order_index == 0:
-                report_error(path, 1, 1404, "Header missing")
+                collect_error(path, 1, 1404, "Header missing")
+                return None
             break
 
     missing_tokens = [tok for tok in expected_order if tok not in seen_tokens]
     if missing_tokens:
-        report_error(path, 1, 1405, f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}")
+        collect_error(path, 1, 1405, f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}")
+        return None
 
     all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
 
@@ -141,6 +147,9 @@ def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[
         parsed_list: List[Tuple[Path, TscHeader]] = []
         for p in files:
             hdr = parse_tsc_header(p)
+            if hdr is None:
+                # Skip invalid file; error already collected
+                continue
             parsed_list.append((p, hdr))
         parsed_groups[group] = parsed_list
     return parsed_groups
