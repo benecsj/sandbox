@@ -18,11 +18,12 @@ class TestResult:
 
 
 def read_config(base_dir: Path) -> Tuple[str, Path, Path]:
-    config_path = base_dir / "config.json"
+    config_path = base_dir / "config" / "config.json"
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     component = raw["component"]
-    test_path = Path(raw["test_path"]) if Path(raw["test_path"]).is_absolute() else (base_dir / raw["test_path"]).resolve()
-    spec_path = Path(raw["spec_path"]) if Path(raw["spec_path"]).is_absolute() else (base_dir / raw["spec_path"]).resolve()
+    cfg_dir = config_path.parent
+    test_path = Path(raw["test_path"]) if Path(raw["test_path"]).is_absolute() else (cfg_dir / raw["test_path"]).resolve()
+    spec_path = Path(raw["spec_path"]) if Path(raw["spec_path"]).is_absolute() else (cfg_dir / raw["spec_path"]).resolve()
     return component, test_path, spec_path
 
 

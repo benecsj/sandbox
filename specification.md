@@ -39,7 +39,7 @@ Precedence: CLI overrides > values in `config.json`.
 1) Load configuration from `config.json` (or from the file specified by `--config`) and apply CLI overrides.
 2) Normalize paths: convert relative `test_path` and `spec_path` to absolute using the directory of `config.json`; keep absolute paths unchanged.
 3) Validate paths: ensure `test_path` and `spec_path` exist; on failure, log error and exit with non-zero status.
-4) Discover `.tsc` files under `test_path` whose basenames start with `<Component>_`. Log absolute paths of all matches.
+4) Discover `.tsc` files under `test_path` whose basename start with `<Component>_`. Log absolute paths of all matches.
    - If no `.tsc` files are found: log "No oAW tests found for <Component>." and exit successfully (no changes).
 5) Group discovered files into `tsc_file_groups` as `{ GroupName: [absolute_file_paths...] }` where `GroupName` is the second underscore-separated token of the filename.
 6) Locate TOC RST file `<component>_component_test.rst` under `spec_path` (non-recursive search of root; optionally allow recursive search — see 9.4). If not found, log `ERROR <component>_component_test.rst not found in <spec_path>` and exit with non-zero status.
@@ -68,7 +68,7 @@ Precedence: CLI overrides > values in `config.json`.
 - If either check fails, log a clear error and exit with code `1`.
 
 6.3 Discovery of `.tsc` Files
-- Search recursively under `test_path` for files matching glob `**/*.tsc` whose basenames start with `<Component>_` (case-sensitive).
+- Search recursively under `test_path` for files matching glob `**/*.tsc` whose basename start with `<Component>_` (case-sensitive).
 - Log the absolute path of each discovered file.
 - Store all matching paths in `tsc_files` (list of absolute paths).
 - If `tsc_files` is empty: log `No oAW tests found for <Component>.` and exit with code `0`.
@@ -163,9 +163,9 @@ Precedence: CLI overrides > values in `config.json`.
       :id: TSS_<Component>_oAW_<group_name_converted>_Tests_<0002+>
       :collapse: true
       :tests: <comma-separated tags for this .tsc file; wrap at 120 chars, continuation lines indented 14 spaces>
-      
+
       Description: <Description text of the .tsc file; continuation lines aligned under value>
-      
+
       Input: <Input text of the .tsc file; continuation lines aligned under value>
 
       Output: <Output text of the .tsc file; continuation lines aligned under value>
@@ -258,4 +258,3 @@ Precedence: CLI overrides > values in `config.json`.
 #### 14. Implementation Notes
 - Use `argparse` for CLI; `json` for config; `pathlib` for paths; `glob`/`rglob` for discovery; `re` for parsing; `textwrap` for wrapping.
 - Ensure deterministic ordering and stable output to facilitate reviews and diffs.
-

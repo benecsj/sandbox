@@ -1,0 +1,10 @@
+{
+  "component": "Bogus",
+  "test_path": "../test/tests",
+  "spec_path": "../test/spec",
+  "group_name_mappings": {
+    "Generate": "Generator",
+    "Compile": "Compiler",
+    "Validate": "Validator"
+  }
+}

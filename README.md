@@ -4,20 +4,26 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 
 #### Requirements
 - Python 3.10+
+- Jinja2 (see `requirements.txt`)
 
 #### Configuration
-`config.json` (by default next to `oaw_to_rst.py`; or specify via `--config`):
+`config/config.json` (by default; or specify via `--config`):
 ```
 {
   "component": "Crypto",
   "test_path": "./test/tests",
-  "spec_path": "./test/spec"
+  "spec_path": "./test/spec",
+  "group_name_mappings": {
+    "Generate": "Generator",
+    "Compile": "Compiler",
+    "Validate": "Validator"
+  }
 }
 ```
 - `test_path` and `spec_path` may be absolute or relative to `config.json`.
-- CLI can override any of the above.
+- CLI can override all except `group_name_mappings` (config-only, mandatory).
 - You can point to an alternate config file using `--config <path>` (absolute
-  or relative to the script directory).
+  or relative to the script directory). Default is `./config/config.json`.
 
 #### Usage
 - Using config only:
