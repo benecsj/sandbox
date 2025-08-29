@@ -1,0 +1,6 @@
+tmp/
+tmp_*
+debug_*
+**/tmp_*
+**/debug_*
+
