@@ -4,3 +4,5 @@ debug_*
 **/tmp_*
 **/debug_*
 *.pyc
+**/__pycache__/
+__pycache__/

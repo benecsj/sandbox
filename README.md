@@ -14,9 +14,9 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
   "test_path": "./test/tests",
   "spec_path": "./test/spec",
   "group_name_mappings": {
-    "generate": "Generator",
-    "compile": "Compiler",
-    "validate": "Validator"
+    "Generate": "Generator",
+    "Compile": "Compiler",
+    "Validate": "Validator"
   }
 }
 ```
