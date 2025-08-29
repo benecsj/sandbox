@@ -193,6 +193,7 @@ class TscHeader:
     input_text: str
     output_text: str
     requirements: List[str]
+    placeholder: bool
 
 
 def parse_tsc_header(path: Path) -> TscHeader:
@@ -253,18 +254,22 @@ def parse_tsc_header(path: Path) -> TscHeader:
                 sys.exit(1)
             break
 
-    # Validate required sections
-    for key in expected_order:
-        if not sections[key]:
-            print(f"ERROR Missing {key.capitalize()} in header: {path}", file=sys.stderr)
-            sys.exit(1)
+    # Determine if this is a placeholder-only header (all sections present but empty)
+    all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
+
+    # Validate required sections when not a placeholder-only header
+    if not all_present_empty:
+        for key in expected_order:
+            if not sections[key]:
+                print(f"ERROR Missing {key.capitalize()} in header: {path}", file=sys.stderr)
+                sys.exit(1)
 
     # Post-process requirements: split on commas and whitespace, dedupe and sort
     req_line = " ".join(sections["requirements"]).replace(",", " ")
     tags_raw = [t.strip() for t in req_line.split() if t.strip()]
     tags = sorted(set(tags_raw))
 
-    if not tags:
+    if not tags and not all_present_empty:
         print(f"ERROR Requirements must contain at least one tag in {path}", file=sys.stderr)
         sys.exit(1)
 
@@ -273,6 +278,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
         input_text="\n".join(sections["input"]).strip(),
         output_text="\n".join(sections["output"]).strip(),
         requirements=tags,
+        placeholder=all_present_empty,
     )
 
 
@@ -361,15 +367,25 @@ def generate_group_rst(
         lines.append("   .. sw_test_step:: 1")
         lines.append(f"      :id: TSS_{component}_oAW_{group_conv}_Tests_{id2}")
         lines.append("      :collapse: true")
-        # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
-        per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
-        lines.append(f"      :tests: {per_file_tests}")
-        lines.append("      ")
-        lines.append(f"      Description: {hdr.description}")
-        lines.append("      ")
-        lines.append(f"      Input: {hdr.input_text}")
-        lines.append("")
-        lines.append(f"      Output: {hdr.output_text}")
+        if hdr.placeholder:
+            rst_name = f"{p.stem}.rst"
+            lines.append(f"      :tests: TODO:Update the Requirements field in the header of {rst_name}")
+            lines.append("      ")
+            lines.append(f"      Description: TODO:Update the Description field in the header of {rst_name}")
+            lines.append("      ")
+            lines.append(f"      Input: TODO:Update the Input field in the header of {rst_name}")
+            lines.append("")
+            lines.append(f"      Output: TODO:Update the Output field in the header of {rst_name}")
+        else:
+            # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
+            per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
+            lines.append(f"      :tests: {per_file_tests}")
+            lines.append("      ")
+            lines.append(f"      Description: {hdr.description}")
+            lines.append("      ")
+            lines.append(f"      Input: {hdr.input_text}")
+            lines.append("")
+            lines.append(f"      Output: {hdr.output_text}")
         lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"
