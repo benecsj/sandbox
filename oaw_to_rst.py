@@ -25,6 +25,7 @@ from lib.file_generator import (
     append_group_links_to_toc,
     generate_group_rst,
 )
+from lib.utils import print_final_status_banner
 
 
 def main() -> int:
@@ -51,6 +52,8 @@ def main() -> int:
         generate_group_rst(config.component, group_name, parsed_list, toc_dir, template_dir, config.group_name_mappings)
 
     print("Done.")
+    # Print final banner based on warnings/errors
+    print_final_status_banner()
     return 0
 
 

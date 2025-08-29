@@ -4,13 +4,52 @@ import subprocess
 import sys
 from pathlib import Path
 
+# ANSI colors
+RED = "\033[31m"
+YELLOW = "\033[33m"
+GREEN = "\033[32m"
+RESET = "\033[0m"
+
+# Global flags
+HAS_WARNINGS: bool = False
+HAS_ERRORS: bool = False
+
+
+def _print_banner(text: str, color: str) -> None:
+    print(f"{color}{text}{RESET}")
+
+
+def print_final_status_banner() -> None:
+    global HAS_WARNINGS, HAS_ERRORS
+    if HAS_ERRORS:
+        _print_banner(
+            "/----------------------------\\\n| ERROR PYTHON SCRIPT FAILED |\n\\----------------------------/",
+            RED,
+        )
+    elif HAS_WARNINGS:
+        _print_banner(
+            "/-------------------------\\\n| FINISHED WITH WARNINGS  |\n\\-------------------------/",
+            YELLOW,
+        )
+    else:
+        _print_banner(
+            "/-----------------------\\\n| FINISHED SUCCESSFULLY |\n\\-----------------------/",
+            GREEN,
+        )
+
 
 def report_error(file: Path, line: int, code: int, message: str) -> None:
+    global HAS_ERRORS
+    HAS_ERRORS = True
     print(f"{file}:{line}: (ERROR) {message}", file=sys.stderr)
+    # Print banner at the end before exiting
+    print_final_status_banner()
     sys.exit(1)
 
 
 def report_warning(file: Path, line: int, code: int, message: str) -> None:
+    global HAS_WARNINGS
+    HAS_WARNINGS = True
     print(f"{file}:{line}: (WARNING) {message}", file=sys.stderr)
 
 
