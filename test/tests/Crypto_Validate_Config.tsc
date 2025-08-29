@@ -1,0 +1,10 @@
+// Description
+// Validates configuration files for crypto modules.
+// Input
+// Crypto module configuration set.
+// Output
+// Validation report without errors.
+// Requirements
+// BSW_SWCS_CryptoDriver_Crypto-7001, BSW_SWCS_CryptoDriver_Crypto-5770
+
+# body intentionally omitted

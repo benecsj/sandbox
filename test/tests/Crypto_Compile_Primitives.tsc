@@ -1,0 +1,10 @@
+// Description
+// Ensures generated crypto primitives compile without errors.
+// Input
+// Generated crypto primitive sources.
+// Output
+// Successful compilation artifacts without warnings treated as errors.
+// Requirements
+// BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-6001
+
+# body intentionally omitted
