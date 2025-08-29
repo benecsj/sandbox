@@ -31,6 +31,11 @@ def report_error(file: Path, line: int, code: int, message: str) -> None:
     sys.exit(1)
 
 
+def report_warning(file: Path, line: int, code: int, message: str) -> None:
+    # Emit warning in VS Code problem matcher format; do not exit
+    print(f"{file}:{line}: (WARNING) {message}", file=sys.stderr)
+
+
 def load_config_with_overrides(script_path: Path) -> Config:
     config_dir: Path = script_path.parent
     config_path: Path = config_dir / "config.json"
@@ -215,6 +220,10 @@ class TscHeader:
     output_text: str
     requirements: List[str]
     placeholder: bool
+    desc_line: int
+    input_line: int
+    output_line: int
+    requirements_line: int
 
 
 def parse_tsc_header(path: Path) -> TscHeader:
@@ -243,6 +252,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     expected_order = ["description", "input", "output", "requirements"]
     order_index = 0
     seen_tokens: set[str] = set()
+    header_lines: Dict[str, int] = {}
 
     while idx < len(lines):
         raw = lines[idx]
@@ -272,6 +282,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
                 current = name
                 order_index += 1
                 seen_tokens.add(name)
+                header_lines[name] = idx + 1
             else:
                 if current is None:
                     report_error(
@@ -312,6 +323,10 @@ def parse_tsc_header(path: Path) -> TscHeader:
         output_text="\n".join(sections["output"]).strip(),
         requirements=tags,
         placeholder=all_present_empty,
+        desc_line=header_lines.get("description", 1),
+        input_line=header_lines.get("input", 1),
+        output_line=header_lines.get("output", 1),
+        requirements_line=header_lines.get("requirements", 1),
     )
 
 
@@ -430,10 +445,12 @@ def generate_group_rst(
         lines.append("      :collapse: true")
         if hdr.placeholder:
             tsc_name = p.name
+            report_warning(p, hdr.requirements_line, 2001, "Missing Requirements content; emitting TODO in RST")
             lines.append(
                 f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}"
             )
             lines.append("      ")
+            report_warning(p, hdr.desc_line, 2002, "Missing Description content; emitting TODO in RST")
             lines.extend(
                 format_multiline_field(
                     "Description",
@@ -442,6 +459,7 @@ def generate_group_rst(
                 )
             )
             lines.append("      ")
+            report_warning(p, hdr.input_line, 2003, "Missing Input content; emitting TODO in RST")
             lines.extend(
                 format_multiline_field(
                     "Input",
@@ -450,6 +468,7 @@ def generate_group_rst(
                 )
             )
             lines.append("")
+            report_warning(p, hdr.output_line, 2004, "Missing Output content; emitting TODO in RST")
             lines.extend(
                 format_multiline_field(
                     "Output",
@@ -465,33 +484,52 @@ def generate_group_rst(
                 )
                 lines.append(f"      :tests: {per_file_tests}")
             else:
+                report_warning(p, hdr.requirements_line, 2001, "Missing Requirements content; emitting TODO in RST")
                 lines.append(
                     f"      :tests: TODO:Update the Requirements field in the header of {p.name}"
                 )
             lines.append("      ")
-            desc_text = (
-                hdr.description
-                or f"TODO:Update the Description field in the header of {p.name}"
-            )
-            lines.extend(
-                format_multiline_field("Description", desc_text, base_indent_spaces=6)
-            )
+            if hdr.description:
+                lines.extend(
+                    format_multiline_field("Description", hdr.description, base_indent_spaces=6)
+                )
+            else:
+                report_warning(p, hdr.desc_line, 2002, "Missing Description content; emitting TODO in RST")
+                lines.extend(
+                    format_multiline_field(
+                        "Description",
+                        f"TODO:Update the Description field in the header of {p.name}",
+                        base_indent_spaces=6,
+                    )
+                )
             lines.append("      ")
-            input_text = (
-                hdr.input_text
-                or f"TODO:Update the Input field in the header of {p.name}"
-            )
-            lines.extend(
-                format_multiline_field("Input", input_text, base_indent_spaces=6)
-            )
+            if hdr.input_text:
+                lines.extend(
+                    format_multiline_field("Input", hdr.input_text, base_indent_spaces=6)
+                )
+            else:
+                report_warning(p, hdr.input_line, 2003, "Missing Input content; emitting TODO in RST")
+                lines.extend(
+                    format_multiline_field(
+                        "Input",
+                        f"TODO:Update the Input field in the header of {p.name}",
+                        base_indent_spaces=6,
+                    )
+                )
             lines.append("")
-            output_text = (
-                hdr.output_text
-                or f"TODO:Update the Output field in the header of {p.name}"
-            )
-            lines.extend(
-                format_multiline_field("Output", output_text, base_indent_spaces=6)
-            )
+            if hdr.output_text:
+                lines.extend(
+                    format_multiline_field("Output", hdr.output_text, base_indent_spaces=6)
+                )
+            else:
+                report_warning(p, hdr.output_line, 2004, "Missing Output content; emitting TODO in RST")
+                lines.extend(
+                    format_multiline_field(
+                        "Output",
+                        f"TODO:Update the Output field in the header of {p.name}",
+                        base_indent_spaces=6,
+                    )
+                )
         lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"
