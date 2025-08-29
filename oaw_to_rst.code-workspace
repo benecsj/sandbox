@@ -1,0 +1,15 @@
+{
+  "folders": [
+    { "path": "." }
+  ],
+  "settings": {
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": false
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python"
+    ]
+  }
+}
+
