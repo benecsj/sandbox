@@ -62,6 +62,35 @@ Formatting specifics:
 Group name normalization for filenames and titles:
 - `Generate`→`Generator`, `Compile`→`Compiler`, `Validate`→`Validator`.
 
+#### Test file (.tsc) header format
+This script expect a specific header to be present in all .tsc header files.
+  - `// Description`
+  - one or more lines of free text (each starting with `//`)
+  - `// Input`
+  - one or more lines of free text (each starting with `//`)
+  - `// Output`
+  - one or more lines of free text (each starting with `//`)
+  - `// Requirements`
+  - one or more lines of tags separated by commas and/or whitespace (each starting with `//`)
+  - a required empty line after the header block (blank or not starting with `//`).
+
+*Important: Always leave an empty line after the last tags line**
+
+<pre>
+// Description
+// Some description about the test
+// Even more lines can be here
+// Input
+// Some description/summary about the configuration
+// Even more lines can be here
+// Output
+// Some description/summary of the expected output
+// Even more lines can be here
+// Requirements
+// TAG_1, TAG2, TAG3,
+// TAG_4
+
+ </pre>
+
 #### Demo Data
 Sample files are provided under `test/` and a ready config is included. A test harness `run_test.py` validates generated output structure and formatting.
-
