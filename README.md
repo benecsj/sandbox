@@ -6,7 +6,7 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 - Python 3.10+
 
 #### Configuration
-`config.json` (next to `oaw_to_rst.py`):
+`config.json` (by default next to `oaw_to_rst.py`; or specify via `--config`):
 ```
 {
   "component": "Crypto",
@@ -16,11 +16,17 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 ```
 - `test_path` and `spec_path` may be absolute or relative to `config.json`.
 - CLI can override any of the above.
+- You can point to an alternate config file using `--config <path>` (absolute
+  or relative to the script directory).
 
 #### Usage
 - Using config only:
 ```
 python3 oaw_to_rst.py
+```
+- Using an alternate config file:
+```
+python3 oaw_to_rst.py --config ../my_config.json
 ```
 - With overrides:
 ```

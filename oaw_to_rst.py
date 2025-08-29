@@ -37,17 +37,14 @@ def report_warning(file: Path, line: int, code: int, message: str) -> None:
 
 
 def load_config_with_overrides(script_path: Path) -> Config:
-    config_dir: Path = script_path.parent
-    config_path: Path = config_dir / "config.json"
-    if not config_path.exists():
-        report_error(
-            config_path, 1, 1001, "config.json not found next to oaw_to_rst.py"
-        )
-
-    with config_path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
-
+    # Parse CLI first to allow selecting an explicit config file
     parser = argparse.ArgumentParser(description="oAW to RST generator")
+    parser.add_argument(
+        "--config",
+        type=str,
+        help="Path to config JSON (absolute or relative to script)",
+        default=None,
+    )
     parser.add_argument("--component", type=str, help="Component name", default=None)
     parser.add_argument(
         "--test_path", type=str, help="Path to test files", default=None
@@ -56,6 +53,29 @@ def load_config_with_overrides(script_path: Path) -> Config:
         "--spec_path", type=str, help="Path to spec files", default=None
     )
     args = parser.parse_args()
+
+    # Determine config.json location
+    if args.config:
+        specified_path = Path(args.config)
+        script_dir = script_path.parent
+        config_path: Path = (
+            specified_path
+            if specified_path.is_absolute()
+            else (script_dir / specified_path).resolve()
+        )
+        config_dir: Path = config_path.parent
+        if not config_path.exists():
+            report_error(config_path, 1, 1001, f"config file not found: {config_path}")
+    else:
+        config_dir = script_path.parent
+        config_path = config_dir / "config.json"
+        if not config_path.exists():
+            report_error(
+                config_path, 1, 1001, "config.json not found next to oaw_to_rst.py"
+            )
+
+    with config_path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
 
     component = args.component or raw.get("component")
     test_path_raw = args.test_path or raw.get("test_path")

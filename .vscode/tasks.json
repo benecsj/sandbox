@@ -58,6 +58,43 @@
           ]
         }
       ]
+    },
+    {
+      "label": "Run oaw_to_rst.py with external config",
+      "type": "shell",
+      "command": "python ${workspaceFolder}/oaw_to_rst.py --config ${input:extConfigPath}",
+      "group": {
+        "kind": "build"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [
+        {
+          "fileLocation": [
+            "absolute"
+          ],
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)\\) (.+)$",
+              "file": 1,
+              "line": 2,
+              "severity": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "extConfigPath",
+      "type": "promptString",
+      "description": "Path to config.json (absolute or relative to workspace)",
+      "default": "../config.json"
     }
   ]
 }

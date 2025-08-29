@@ -74,6 +74,92 @@ def run_generator(script_dir: Path) -> None:
     subprocess.run([sys.executable, str(script)], check=True)
 
 
+def extract_group_header_tests(path: Path) -> List[str]:
+    lines = read_text(path).splitlines()
+    tokens: List[str] = []
+    collecting = False
+    for idx, ln in enumerate(lines):
+        if not collecting and ln.strip().startswith(":tests:"):
+            content = ln.split(":tests:", 1)[1]
+            collecting = True
+            segment = content.strip()
+            if segment:
+                tokens.append(segment)
+            continue
+        if collecting:
+            if ln.startswith("           ") and ln.strip():  # 11 spaces continuation
+                tokens.append(ln.strip())
+            else:
+                break
+    text = " ".join(tokens)
+    # Normalize commas to spaces, split, and filter non-empty
+    parts = [p.strip() for p in text.replace(",", " ").split() if p.strip()]
+    return parts
+
+
+def assert_group_header_token_set(path: Path, expected_count: int) -> TestResult:
+    tokens = extract_group_header_tests(path)
+    unique = list(dict.fromkeys(tokens))
+    is_sorted = tokens == sorted(tokens)
+    ok = (len(tokens) == expected_count) and (len(unique) == len(tokens)) and is_sorted
+    return TestResult(
+        name=f"group-header-tests:{path.name}",
+        passed=ok,
+        message=(
+            "Count/unique/sort mismatch: "
+            f"count={len(tokens)} expected={expected_count} "
+            f"unique={len(unique)} sorted={is_sorted} tokens={tokens[:10]}..."
+        ) if not ok else "",
+    )
+
+
+def count_step_blocks(path: Path) -> int:
+    return sum(1 for ln in read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
+
+
+def assert_step_block_count(path: Path, expected: int) -> TestResult:
+    count = count_step_blocks(path)
+    return TestResult(
+        name=f"step-blocks:{path.name}",
+        passed=(count == expected),
+        message=f"Expected {expected} step blocks, found {count}",
+    )
+
+
+def assert_title_line(path: Path, expected_title: str) -> TestResult:
+    first = read_text(path).splitlines()[0] if read_text(path).splitlines() else ""
+    return TestResult(
+        name=f"title-line:{path.name}",
+        passed=(first == expected_title),
+        message=f"Expected first line '{expected_title}', got '{first}'",
+    )
+
+
+def assert_shortdescription(path: Path, group_word: str, component: str) -> TestResult:
+    expected = f":tst_shortdescription: Tests for successful {group_word} of {component}"
+    return assert_contains_substring(path, expected)
+
+
+def assert_toc_order(toc_path: Path, files_in_order: List[str]) -> TestResult:
+    content = read_text(toc_path)
+    positions = [content.find(name) for name in files_in_order]
+    ok = all(pos >= 0 for pos in positions) and positions == sorted(positions)
+    return TestResult(
+        name="toc-order",
+        passed=ok,
+        message=f"Positions not in order: {positions}",
+    )
+
+
+def assert_todo_count(path: Path, expected: int) -> TestResult:
+    count = read_text(path).count("TODO:Update")
+    return TestResult(
+        name=f"todo-count:{path.name}",
+        passed=(count == expected),
+        message=f"Expected {expected} TODO lines, found {count}",
+    )
+
+
 def main() -> int:
     script_dir = Path(__file__).resolve().parent
     component, test_path, spec_path = read_config(script_dir)
@@ -205,6 +291,45 @@ def main() -> int:
     results.append(assert_regex(gen, r"^\s{14}Second line of output description\.") )
 
     # Summarize
+
+    # Additional explicit assertions
+    # 1) Exact title lines
+    results.append(assert_title_line(gen, "Generator Test Specification - oAW tests"))
+    results.append(assert_title_line(cmp, "Compiler Test Specification - oAW tests"))
+    results.append(assert_title_line(val, "Validator Test Specification - oAW tests"))
+
+    # 2) Short descriptions per group
+    results.append(assert_shortdescription(gen, "Generate", component))
+    results.append(assert_shortdescription(cmp, "Compile", component))
+    results.append(assert_shortdescription(val, "Validate", component))
+
+    # 3) Group header aggregated tag sets: count, uniqueness, sorted
+    results.append(assert_group_header_token_set(gen, 4))
+    results.append(assert_group_header_token_set(cmp, 3))
+    results.append(assert_group_header_token_set(val, 24))
+
+    # 4) Step block counts (2 blocks per .tsc in each group)
+    results.append(assert_step_block_count(gen, 6))  # 3 tests
+    results.append(assert_step_block_count(cmp, 4))  # 2 tests
+    results.append(assert_step_block_count(val, 4))  # 2 tests
+
+    # 5) Specific content checks for a few steps
+    results.append(assert_contains_substring(cmp, ".. sw_test_step:: Bogus_Compile_KeyManagement"))
+    results.append(assert_contains_substring(cmp, "Description: Ensures generated key management sources compile without errors."))
+    results.append(assert_contains_substring(gen, ".. sw_test_step:: Bogus_Generate_Primitives"))
+    results.append(assert_contains_substring(gen, "Input: Configurations for AES/HMAC primitive generation."))
+    results.append(assert_contains_substring(val, ".. sw_test_step:: Bogus_Validate_Config"))
+    results.append(assert_contains_substring(val, "Output: Validation report without errors."))
+
+    # 6) TOC order of generated files
+    results.append(assert_toc_order(toc, [
+        f"{component}_oAW_Compiler_Tests.rst",
+        f"{component}_oAW_Generator_Tests.rst",
+        f"{component}_oAW_Validator_Tests.rst",
+    ]))
+
+    # 7) Placeholder TODO count for EmptyHeader test
+    results.append(assert_todo_count(val, 4))
     failed = [r for r in results if not r.passed]
     for r in results:
         print(("PASS" if r.passed else "FAIL") + f" - {r.name}")
