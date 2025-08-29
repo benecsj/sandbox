@@ -324,18 +324,15 @@ def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -
 def generate_group_rst(
     component: str,
     group: str,
-    tsc_files: List[Path],
+    parsed: List[Tuple[Path, TscHeader]],
     toc_dir: Path,
 ) -> Path:
     group_conv = convert_group_name(group)
     out_path = toc_dir / f"{component}_oAW_{group_conv}_Tests.rst"
 
-    # Parse headers and accumulate tags
-    parsed: List[Tuple[Path, TscHeader]] = []
+    # Accumulate tags from pre-parsed headers
     all_tags_set = set()
-    for p in tsc_files:
-        hdr = parse_tsc_header(p)
-        parsed.append((p, hdr))
+    for _, hdr in parsed:
         for t in hdr.requirements:
             all_tags_set.add(t)
 
@@ -414,6 +411,17 @@ def generate_group_rst(
     return out_path
 
 
+def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[Tuple[Path, TscHeader]]]:
+    parsed_groups: Dict[str, List[Tuple[Path, TscHeader]]] = {}
+    for group, files in tsc_file_groups.items():
+        parsed_list: List[Tuple[Path, TscHeader]] = []
+        for p in files:
+            hdr = parse_tsc_header(p)  # will exit on error; validates before any RST modifications
+            parsed_list.append((p, hdr))
+        parsed_groups[group] = parsed_list
+    return parsed_groups
+
+
 def main() -> int:
     script_path = Path(__file__).resolve()
     config = load_config_with_overrides(script_path)
@@ -424,6 +432,9 @@ def main() -> int:
         return 0
 
     tsc_file_groups = group_tsc_files_by_group(config.component, tsc_files)
+    # Parse and validate ALL headers before any RST file is modified
+    parsed_groups = parse_all_headers(tsc_file_groups)
+
     toc_path = find_toc_rst(config)
 
     cleanup_generated_group_files(config.component, toc_path)
@@ -431,8 +442,8 @@ def main() -> int:
     append_group_links_to_toc(config.component, list(tsc_file_groups.keys()), toc_path)
 
     toc_dir = toc_path.parent
-    for group_name, files in tsc_file_groups.items():
-        generate_group_rst(config.component, group_name, files, toc_dir)
+    for group_name, parsed_list in parsed_groups.items():
+        generate_group_rst(config.component, group_name, parsed_list, toc_dir)
 
     print("Done.")
     return 0
