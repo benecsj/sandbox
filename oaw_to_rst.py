@@ -26,7 +26,8 @@ class Config:
 
 
 def report_error(file: Path, line: int, code: int, message: str) -> None:
-    print(f"{file}:{line}: (ERROR/{code}) {message}", file=sys.stderr)
+    # Emit without code for VS Code problem matcher: <file>:<line>: (ERROR) <message>
+    print(f"{file}:{line}: (ERROR) {message}", file=sys.stderr)
     sys.exit(1)
 
 

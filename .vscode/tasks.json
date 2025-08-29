@@ -22,7 +22,7 @@
           "owner": "python",
           "pattern": [
             {
-              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)/[0-9]+\\) (.+)$",
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)\\) (.+)$",
               "file": 1,
               "line": 2,
               "severity": 3,
@@ -49,7 +49,7 @@
           "owner": "python",
           "pattern": [
             {
-              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)/[0-9]+\\) (.+)$",
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)\\) (.+)$",
               "file": 1,
               "line": 2,
               "severity": 3,
