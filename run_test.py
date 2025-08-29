@@ -118,6 +118,74 @@ def main() -> int:
     results.append(assert_contains_substring(cmp, ":tests: BSW_SWCS_CryptoDriver_Crypto-5770, BSW_SWCS_CryptoDriver_Crypto-6001, BSW_SWCS_CryptoDriver_Crypto-8001"))
     results.append(assert_contains_substring(gen, ":tests: BSW_SWCS_CryptoDriver_Crypto-5048, BSW_SWCS_CryptoDriver_Crypto-5770, BSW_SWCS_CryptoDriver_Crypto-8001"))
 
+    # No duplicate TOC links
+    toc_text = read_text(toc)
+    for fname in [f"{component}_oAW_Generator_Tests.rst", f"{component}_oAW_Compiler_Tests.rst", f"{component}_oAW_Validator_Tests.rst"]:
+        count = toc_text.count(fname)
+        results.append(TestResult(name=f"toc-unique:{fname}", passed=(count == 1), message=f"Expected 1 occurrence of {fname}, found {count}"))
+
+    # Title underline length (120 '=' characters)
+    def assert_title_underline(path: Path) -> TestResult:
+        lines = read_text(path).splitlines()
+        if len(lines) < 2:
+            return TestResult(name=f"title-underline:{path.name}", passed=False, message="File too short for title check")
+        ok = (set(lines[1]) == {"="} and len(lines[1]) == 120)
+        return TestResult(name=f"title-underline:{path.name}", passed=ok, message="Expected second line to be 120 '='")
+
+    results.append(assert_title_underline(gen))
+    results.append(assert_title_underline(cmp))
+    results.append(assert_title_underline(val))
+
+    # Section underline (dashes count equals section length)
+    def assert_section_underline(path: Path, section: str) -> TestResult:
+        lines = read_text(path).splitlines()
+        for i, ln in enumerate(lines):
+            if ln.strip() == section:
+                if i + 1 < len(lines) and set(lines[i + 1]) == {"-"} and len(lines[i + 1]) == len(section):
+                    return TestResult(name=f"section-underline:{path.name}", passed=True)
+                return TestResult(name=f"section-underline:{path.name}", passed=False, message="Dash underline length mismatch")
+        return TestResult(name=f"section-underline:{path.name}", passed=False, message="Section header not found")
+
+    results.append(assert_section_underline(gen, f"{component}_oAW_Generator_Tests"))
+    results.append(assert_section_underline(cmp, f"{component}_oAW_Compiler_Tests"))
+    results.append(assert_section_underline(val, f"{component}_oAW_Validator_Tests"))
+
+    # Group sw_test block id present
+    def assert_group_id(path: Path, group: str) -> TestResult:
+        pat = rf"^\s*:id: TS_{component}_oAW_{group}_Tests$"
+        return assert_regex(path, pat)
+
+    results.append(assert_group_id(gen, "Generator"))
+    results.append(assert_group_id(cmp, "Compiler"))
+    results.append(assert_group_id(val, "Validator"))
+
+    # IDs in per-file steps are sequential starting with 0001
+    def assert_id_sequence(path: Path, group: str) -> TestResult:
+        content = read_text(path)
+        ids = re.findall(rf":id: TSS_{component}_oAW_{group}_Tests_(\d{{4}})", content)
+        if not ids:
+            return TestResult(name=f"id-seq:{path.name}", passed=False, message="No step IDs found")
+        expected = [f"{i:04d}" for i in range(1, len(ids) + 1)]
+        ok = ids == expected
+        return TestResult(name=f"id-seq:{path.name}", passed=ok, message=f"Expected {expected}, got {ids}")
+
+    results.append(assert_id_sequence(gen, "Generator"))
+    results.append(assert_id_sequence(cmp, "Compiler"))
+    results.append(assert_id_sequence(val, "Validator"))
+
+    # Ensure all :tests: lines use ", " (comma-space), not comma with no space
+    def assert_comma_space_only(path: Path) -> TestResult:
+        bad = []
+        for ln in read_text(path).splitlines():
+            if ln.strip().startswith(":tests:"):
+                if re.search(r",\S", ln):
+                    bad.append(ln)
+        return TestResult(name=f"comma-space:{path.name}", passed=(len(bad) == 0), message=f"Found bad lines: {bad[:2]}")
+
+    results.append(assert_comma_space_only(gen))
+    results.append(assert_comma_space_only(cmp))
+    results.append(assert_comma_space_only(val))
+
     # Summarize
     failed = [r for r in results if not r.passed]
     for r in results:
