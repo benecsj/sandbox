@@ -14,7 +14,23 @@
         "reveal": "always",
         "panel": "dedicated"
       },
-      "problemMatcher": []
+      "problemMatcher": [
+        {
+          "fileLocation": [
+            "absolute"
+          ],
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)/[0-9]+\\) (.+)$",
+              "file": 1,
+              "line": 2,
+              "severity": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
     },
     {
       "label": "Run run_test.py",
@@ -25,7 +41,23 @@
         "reveal": "always",
         "panel": "dedicated"
       },
-      "problemMatcher": []
+      "problemMatcher": [
+        {
+          "fileLocation": [
+            "absolute"
+          ],
+          "owner": "python",
+          "pattern": [
+            {
+              "regexp": "^(.*):([0-9]+): \\((WARNING|ERROR)/[0-9]+\\) (.+)$",
+              "file": 1,
+              "line": 2,
+              "severity": 3,
+              "message": 4
+            }
+          ]
+        }
+      ]
     }
   ]
 }
