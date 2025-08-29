@@ -49,8 +49,8 @@ Precedence: CLI overrides > values in `config.json`.
 8) Parse headers of each `.tsc` file to extract `Description`, `Input`, `Output`, and `Requirements` (list of tags). On parse error or missing fields, log error and exit with non-zero status.
 9) For each group, generate a single Group RST containing:
    - A section header.
-   - A `.. sw_test::` block with aggregated unique tags across the group.
-   - For each `.tsc` in the group, two `.. sw_test_step::` blocks (name and step `1`) populated with parsed fields and per-file tags.
+   - A `.. sw_test::` block with aggregated unique tags across the group (comma-separated; wrap at 120 chars with 11-space continuation indent).
+   - For each `.tsc` in the group, two `.. sw_test_step::` blocks (file name without extension and step `1`) populated with parsed fields and per-file tags (comma-separated; wrap at 120 chars with 14-space continuation indent).
    - IDs incrementing from `0001` across the entire group file (two IDs per test file, in order).
 
 #### 6. Detailed Functional Requirements
@@ -123,9 +123,10 @@ Precedence: CLI overrides > values in `config.json`.
   - For `Requirements`, combine all lines, replace commas with spaces, split on whitespace, trim each token, drop empties, deduplicate preserving first occurrence.
   - Stop parsing at the first empty or non-comment line following the `Requirements` content.
 - Validation rules:
-  - All four sections must be present and non-empty.
-  - `Requirements` must result in at least one tag.
-  - On violation: log an error indicating file and missing/invalid section; exit with code `1`.
+  - All four section headers must be present and in order.
+  - Two supported cases:
+    1) Normal content: Sections contain text; `Requirements` yields at least one tag. Missing content → error and exit code `1`.
+    2) Placeholder header: All four headers present but all sections empty. Generator emits TODO placeholders referencing the `.tsc` filename for all four fields.
 
 6.10 Generating Group RST Files
 - For each group (sorted by name):
@@ -149,34 +150,34 @@ Precedence: CLI overrides > values in `config.json`.
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: <space-separated unique tags across all tests in this group; wrap at 120 chars, continuation lines indented 11 spaces>
+   :tests: <comma-separated unique tags across all tests in this group; wrap at 120 chars, continuation lines indented 11 spaces>
 
    See descriptions below
 
-   .. sw_test_step:: <Name of the .tsc file>
+   .. sw_test_step:: <Name of the file without extension>
       :id: TSS_<Component>_oAW_<group_name_converted>_Tests_<0001+>
       :collapse: true
 
    .. sw_test_step:: 1
       :id: TSS_<Component>_oAW_<group_name_converted>_Tests_<0002+>
       :collapse: true
-      :tests: <space-separated tags for this .tsc file; wrap as above>
+      :tests: <comma-separated tags for this .tsc file; wrap at 120 chars, continuation lines indented 14 spaces>
       
-      Description: <Description text of the .tsc file>
+      Description: <Description text of the .tsc file; continuation lines aligned under value>
       
-      Input: <Input text of the .tsc file>
+      Input: <Input text of the .tsc file; continuation lines aligned under value>
 
-      Output: <Output text of the .tsc file>
+      Output: <Output text of the .tsc file; continuation lines aligned under value>
 ```
 
   - For each additional `.tsc` file in the group, repeat the two `.. sw_test_step::` blocks and continue incrementing the 4-digit IDs globally within this group file (i.e., two IDs per file).
-  - Line wrapping of long `:tests:` lines: wrap at 120 characters; continuation lines must be indented with exactly 11 spaces.
+  - Line wrapping of long `:tests:` lines: wrap at 120 characters; continuation lines must be indented with exactly 11 spaces (group header) and 14 spaces (per-file lines).
   - All content is overwritten on each run (freshly generated after cleanup).
 
 6.11 Ordering and Determinism
 - Sort groups alphabetically by `Group`.
-- Within each group, sort tests by filename (natural/lexicographic) to ensure stable output.
-- Aggregate tags in group header in deterministic order: by appearance order across sorted tests, deduplicated.
+- Within each group, sort tests by absolute path string to ensure stable output.
+- Aggregate tags in group header deterministically: deduplicate and sort ascending alphabetically; per-file tags are also sorted ascending.
 
 6.12 Logging and Exit Codes
 - INFO: configuration summary, resolved absolute paths, number of files discovered, each file path, TOC path, generated files.
@@ -235,8 +236,17 @@ Precedence: CLI overrides > values in `config.json`.
 - Validation errors cause exit code `1` with clear messages.
 - When no `.tsc` files are found for the component, the tool logs the informational message and exits with code `0` without modifying TOC.
 - TOC RST is updated: old `<Component>_oAW_*.rst` lines removed; new group filenames appended; corresponding files are (re)generated.
-- Group RST files are produced with correct filenames, sections, aggregated unique tags, and correctly incremented 4-digit IDs across all `.. sw_test_step::` blocks.
-- Requirements tags are deduplicated and correctly wrapped at 120 characters with exactly 11-space indentation on continuation lines.
+- Group RST files are produced with correct filenames, sections, aggregated unique tags (comma-separated), and correctly incremented 4-digit IDs across all `.. sw_test_step::` blocks. `.. sw_test_step::` uses file names without extension.
+- Requirements tags are deduplicated and correctly wrapped at 120 characters with continuation indentation: 11 spaces in group header, 14 spaces in per-file `:tests:`.
+- Multi-line Description/Input/Output are rendered with continuation lines aligned under the start of the value.
+- Placeholder empty headers generate TODO lines referencing the `.tsc` filename for all four fields.
+
+#### 15. Test Harness
+- A self-contained test script `run_test.py` runs the generator and asserts:
+  - Presence of expected files and TOC links
+  - Tag formatting (comma-separated), wrapping, and indentation rules (11/14)
+  - Placeholder TODO generation for empty headers
+  - Deterministic ordering and sequential test step IDs
 
 #### 13. Risks and Edge Cases
 - Filenames not matching the convention: tool errors out with a helpful message.

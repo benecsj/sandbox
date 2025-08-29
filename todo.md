@@ -20,5 +20,5 @@
 - [x] Ensure deterministic ordering (sorted files, groups, per-file tags, aggregated tags)
 - [x] Iteratively test and refine
 - [x] Write `README.md` with usage instructions
-- [ ] Final verification: run end-to-end and review generated RST for formatting/wrapping
+- [x] Final verification: run end-to-end and review generated RST for formatting/wrapping
 
