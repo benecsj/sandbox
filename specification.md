@@ -17,7 +17,7 @@ This document defines functional and non-functional requirements, configuration,
 - **group_name_converted**: Mapping of group to display variant: `Generate`→`Generator`, `Compile`→`Compiler`, `Validate`→`Validator`; otherwise unchanged.
 
 #### 3. Inputs
-- `config.json` (located next to `oaw_to_rst.py`):
+- `config.json` (by default next to `oaw_to_rst.py`; can be overridden via `--config <path>`):
   - `component` (string, required): Component name (case-sensitive; used as filename prefix filter)
   - `test_path` (string, required): Path to test sources (absolute or relative to `config.json` directory)
   - `spec_path` (string, required): Path to documentation (absolute or relative to `config.json` directory)
@@ -26,6 +26,7 @@ This document defines functional and non-functional requirements, configuration,
   - `--component <name>`
   - `--test_path <path>`
   - `--spec_path <path>`
+  - `--config <file>` (absolute or relative to the script directory)
 
 Precedence: CLI overrides > values in `config.json`.
 
@@ -35,7 +36,7 @@ Precedence: CLI overrides > values in `config.json`.
 - Console logs describing actions, found files, and errors.
 
 #### 5. High-Level Flow
-1) Load configuration from `config.json` and apply CLI overrides.
+1) Load configuration from `config.json` (or from the file specified by `--config`) and apply CLI overrides.
 2) Normalize paths: convert relative `test_path` and `spec_path` to absolute using the directory of `config.json`; keep absolute paths unchanged.
 3) Validate paths: ensure `test_path` and `spec_path` exist; on failure, log error and exit with non-zero status.
 4) Discover `.tsc` files under `test_path` whose basenames start with `<Component>_`. Log absolute paths of all matches.
@@ -56,7 +57,7 @@ Precedence: CLI overrides > values in `config.json`.
 #### 6. Detailed Functional Requirements
 
 6.1 Configuration Handling
-- Read `config.json` located in the same directory as `oaw_to_rst.py`.
+- Read `config.json` located in the same directory as `oaw_to_rst.py`, unless an alternate config file is provided via `--config`.
 - Apply CLI overrides for `component`, `test_path`, and `spec_path` if provided.
 - After merging, convert `test_path` and `spec_path` to absolute paths if they are relative. The base for resolution is the directory of `config.json`.
 - Keep absolute paths unchanged. Store the normalized absolute paths back into the in-memory config object for subsequent steps.
