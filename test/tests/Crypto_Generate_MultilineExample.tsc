@@ -1,0 +1,13 @@
+// Description
+// This is a multi-line description for the generator test.
+// It spans multiple lines to validate parsing behavior.
+// Input
+// First line of input description.
+// Second line of input description.
+// Output
+// First line of output description.
+// Second line of output description.
+// Requirements
+// BSW_SWCS_CryptoDriver_Crypto-9001, BSW_SWCS_CryptoDriver_Crypto-5770
+
+# body intentionally omitted
