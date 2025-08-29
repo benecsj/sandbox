@@ -23,17 +23,17 @@ def print_final_status_banner() -> None:
     global HAS_WARNINGS, HAS_ERRORS
     if HAS_ERRORS:
         _print_banner(
-            "/----------------------------\\\n| ERROR PYTHON SCRIPT FAILED |\n\\----------------------------/",
+            "/-------------------\\\n| OAW TO RST FAILED |\n\\-------------------/",
             RED,
         )
     elif HAS_WARNINGS:
         _print_banner(
-            "/-------------------------\\\n| FINISHED WITH WARNINGS  |\n\\-------------------------/",
+            "/-----------------------------------\\\n| OAW TO RST FINISHED WITH WARNINGS |\n\\-----------------------------------/",
             YELLOW,
         )
     else:
         _print_banner(
-            "/-----------------------\\\n| FINISHED SUCCESSFULLY |\n\\-----------------------/",
+            "/---------------------------\\\n| OAW TO RST WAS SUCCESSFUL |\n\\---------------------------/",
             GREEN,
         )
 
@@ -81,4 +81,3 @@ def ensure_jinja2_installed() -> None:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-

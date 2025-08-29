@@ -29,6 +29,8 @@ from lib.utils import print_final_status_banner
 
 
 def main() -> int:
+    print("Running oAW to RST generator")
+    print("----------------------------")
     script_path = Path(__file__).resolve()
     config = load_config_with_overrides(script_path)
     validate_paths(config)
@@ -48,10 +50,10 @@ def main() -> int:
 
     template_dir = script_path.parent / "config" / "templates"
     toc_dir = toc_path.parent
+    print(f"Generated test group rst files:")
     for group_name, parsed_list in parsed_groups.items():
         generate_group_rst(config.component, group_name, parsed_list, toc_dir, template_dir, config.group_name_mappings)
 
-    print("Done.")
     # Print final banner based on warnings/errors
     print_final_status_banner()
     return 0

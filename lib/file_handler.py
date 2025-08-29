@@ -19,6 +19,7 @@ def validate_paths(config: Config) -> None:
 def discover_tsc_files(config: Config) -> List[Path]:
     prefix = f"{config.component}_"
     results: List[Path] = []
+    print("Test (.tsc) files found:")
     for path in config.test_path.rglob("*.tsc"):
         if path.name.startswith(prefix):
             results.append(path.resolve())
@@ -27,6 +28,7 @@ def discover_tsc_files(config: Config) -> List[Path]:
         print(str(p))
     if not results:
         print(f"No oAW tests found for {config.component}.")
+    print("")
     return results
 
 
@@ -142,4 +144,3 @@ def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[
             parsed_list.append((p, hdr))
         parsed_groups[group] = parsed_list
     return parsed_groups
-

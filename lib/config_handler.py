@@ -89,6 +89,5 @@ def load_config_with_overrides(script_path: Path) -> Config:
     print(f"Component: {component}")
     print(f"Test path: {test_path}")
     print(f"Spec path: {spec_path}")
-
+    print("")
     return Config(component=component, test_path=test_path, spec_path=spec_path, group_name_mappings=group_name_mappings)
-

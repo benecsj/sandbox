@@ -18,18 +18,21 @@ def find_toc_rst(component: str, spec_path: Path) -> Path:
     candidate = spec_path / toc_name
     if not candidate.exists():
         report_error(candidate, 1, 1301, f"{toc_name} not found in {spec_path}")
-    print(f"TOC RST: {candidate} (found)")
+    print(f"Table of content rst file:")
+    print(f"{candidate}")
+    print("")
     return candidate.resolve()
 
 
 def cleanup_generated_group_files(component: str, toc_path: Path) -> None:
     toc_dir = toc_path.parent
+    print(f"Deleted old test specification files:")
     for file in toc_dir.glob(f"{component}_oAW_*.rst"):
         if file == toc_path:
             continue
         try:
             file.unlink()
-            print(f"Deleted old generated file: {file}")
+            print(f"{file}")
         except Exception as ex:
             report_error(file, 1, 1302, f"Failed to delete file: {ex}")
 
@@ -58,7 +61,7 @@ def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path,
     for group in groups:
         group_conv = convert_group_name(group, group_name_mappings)
         filename = f"{component}_oAW_{group_conv}_Tests.rst"
-        appended_lines.append(filename)
+        appended_lines.append("   "+filename)
 
     if not text.endswith("\n"):
         text += "\n"
@@ -199,8 +202,7 @@ def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscH
 
     try:
         out_path.write_text(content, encoding="utf-8")
-        print(f"Generated group RST: {out_path}")
+        print(f"{out_path}")
     except Exception as ex:
         report_error(out_path, 1, 1501, f"Failed to write group RST: {ex}")
     return out_path
-
