@@ -68,7 +68,7 @@ def load_config_with_overrides(script_path: Path) -> Config:
     if not spec_path_raw or not isinstance(spec_path_raw, str):
         report_error(config_path, 1, 1004, "Invalid or missing 'spec_path' in configuration")
 
-    # group_name_mappings is mandatory and not overrideable via CLI
+    # group_name_mappings is mandatory and not overridable via CLI
     if not isinstance(group_name_mappings_raw, dict) or not group_name_mappings_raw:
         report_error(config_path, 1, 1005, "Invalid or missing 'group_name_mappings' in configuration")
     # Normalize keys to lowercase and ensure values are strings
