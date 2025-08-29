@@ -14,16 +14,31 @@ Crypto_oAW_Generator_Tests
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: BSW_SWCS_CryptoDriver_Crypto-5048 BSW_SWCS_CryptoDriver_Crypto-5770
+   :tests: BSW_SWCS_CryptoDriver_Crypto-8001 BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-5048
 
    See descriptions below
 
-   .. sw_test_step:: Crypto_Generate_Primitives.tsc
+   .. sw_test_step:: Crypto_Generate_KeyManagement.tsc
       :id: TSS_Crypto_oAW_Generator_Tests_0001
       :collapse: true
 
    .. sw_test_step:: 1
       :id: TSS_Crypto_oAW_Generator_Tests_0002
+      :collapse: true
+      :tests: BSW_SWCS_CryptoDriver_Crypto-8001 BSW_SWCS_CryptoDriver_Crypto-5770
+      
+      Description: Validates code generation for key management components.
+      
+      Input: Key management configuration set.
+
+      Output: Generated key management sources and headers.
+
+   .. sw_test_step:: Crypto_Generate_Primitives.tsc
+      :id: TSS_Crypto_oAW_Generator_Tests_0003
+      :collapse: true
+
+   .. sw_test_step:: 1
+      :id: TSS_Crypto_oAW_Generator_Tests_0004
       :collapse: true
       :tests: BSW_SWCS_CryptoDriver_Crypto-5048 BSW_SWCS_CryptoDriver_Crypto-5770
       

@@ -1,0 +1,10 @@
+// Description
+// Ensures generated key management sources compile without errors.
+// Input
+// Generated key management source files.
+// Output
+// Successful compilation artifacts for key management.
+// Requirements
+// BSW_SWCS_CryptoDriver_Crypto-8001 BSW_SWCS_CryptoDriver_Crypto-6001
+
+# body intentionally omitted

@@ -1,0 +1,10 @@
+// Description
+// Validates code generation for key management components.
+// Input
+// Key management configuration set.
+// Output
+// Generated key management sources and headers.
+// Requirements
+// BSW_SWCS_CryptoDriver_Crypto-8001, BSW_SWCS_CryptoDriver_Crypto-5770
+
+# body intentionally omitted

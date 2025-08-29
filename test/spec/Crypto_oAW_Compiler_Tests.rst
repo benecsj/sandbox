@@ -14,16 +14,31 @@ Crypto_oAW_Compiler_Tests
    :tst_preparation: nothing specific
    :tst_type: Manual
    :tst_env: Generator-Test
-   :tests: BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-6001
+   :tests: BSW_SWCS_CryptoDriver_Crypto-8001 BSW_SWCS_CryptoDriver_Crypto-6001 BSW_SWCS_CryptoDriver_Crypto-5770
 
    See descriptions below
 
-   .. sw_test_step:: Crypto_Compile_Primitives.tsc
+   .. sw_test_step:: Crypto_Compile_KeyManagement.tsc
       :id: TSS_Crypto_oAW_Compiler_Tests_0001
       :collapse: true
 
    .. sw_test_step:: 1
       :id: TSS_Crypto_oAW_Compiler_Tests_0002
+      :collapse: true
+      :tests: BSW_SWCS_CryptoDriver_Crypto-8001 BSW_SWCS_CryptoDriver_Crypto-6001
+      
+      Description: Ensures generated key management sources compile without errors.
+      
+      Input: Generated key management source files.
+
+      Output: Successful compilation artifacts for key management.
+
+   .. sw_test_step:: Crypto_Compile_Primitives.tsc
+      :id: TSS_Crypto_oAW_Compiler_Tests_0003
+      :collapse: true
+
+   .. sw_test_step:: 1
+      :id: TSS_Crypto_oAW_Compiler_Tests_0004
       :collapse: true
       :tests: BSW_SWCS_CryptoDriver_Crypto-5770 BSW_SWCS_CryptoDriver_Crypto-6001
       
