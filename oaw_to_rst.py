@@ -43,12 +43,12 @@ def main() -> int:
 
     cleanup_generated_group_files(config.component, toc_path)
     remove_generated_lines_from_toc(config.component, toc_path)
-    append_group_links_to_toc(config.component, list(tsc_file_groups.keys()), toc_path)
+    append_group_links_to_toc(config.component, list(tsc_file_groups.keys()), toc_path, config.group_name_mappings)
 
     template_dir = script_path.parent / "config" / "templates"
     toc_dir = toc_path.parent
     for group_name, parsed_list in parsed_groups.items():
-        generate_group_rst(config.component, group_name, parsed_list, toc_dir, template_dir)
+        generate_group_rst(config.component, group_name, parsed_list, toc_dir, template_dir, config.group_name_mappings)
 
     print("Done.")
     return 0

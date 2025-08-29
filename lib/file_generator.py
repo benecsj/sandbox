@@ -2,21 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from .utils import report_error, report_warning, ensure_jinja2_installed
 from .file_handler import TscHeader
 
 
-def convert_group_name(group: str) -> str:
+def convert_group_name(group: str, group_name_mappings: Dict[str, str]) -> str:
     lower = group.lower()
-    if lower == "generate":
-        return "Generator"
-    if lower == "compile":
-        return "Compiler"
-    if lower == "validate":
-        return "Validator"
-    return group
+    return group_name_mappings.get(lower, group)
 
 
 def find_toc_rst(component: str, spec_path: Path) -> Path:
@@ -54,7 +48,7 @@ def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
         report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
 
 
-def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path) -> None:
+def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path, group_name_mappings: Dict[str, str]) -> None:
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -62,7 +56,7 @@ def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path)
 
     appended_lines: List[str] = []
     for group in groups:
-        group_conv = convert_group_name(group)
+        group_conv = convert_group_name(group, group_name_mappings)
         filename = f"{component}_oAW_{group_conv}_Tests.rst"
         appended_lines.append(filename)
 
@@ -111,8 +105,8 @@ def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -
     return lines
 
 
-def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscHeader]], toc_dir: Path, template_dir: Path) -> Path:
-    group_conv = convert_group_name(group)
+def generate_group_rst(component: str, group: str, parsed: List[Tuple[Path, TscHeader]], toc_dir: Path, template_dir: Path, group_name_mappings: Dict[str, str]) -> Path:
+    group_conv = convert_group_name(group, group_name_mappings)
     out_path = toc_dir / f"{component}_oAW_{group_conv}_Tests.rst"
 
     # Aggregate group tags
