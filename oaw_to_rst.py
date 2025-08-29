@@ -25,7 +25,7 @@ from lib.file_generator import (
     append_group_links_to_toc,
     generate_group_rst,
 )
-from lib.utils import print_final_status_banner
+from lib.utils import print_final_status_banner, has_errors
 
 
 def main() -> int:
@@ -41,6 +41,11 @@ def main() -> int:
 
     tsc_file_groups = group_tsc_files_by_group(config.component, tsc_files)
     parsed_groups = parse_all_headers(tsc_file_groups)
+
+    # If any .tsc parsing/grouping errors were collected, report and stop
+    if has_errors():
+        print_final_status_banner()
+        return 1
 
     toc_path = find_toc_rst(config.component, config.spec_path)
 

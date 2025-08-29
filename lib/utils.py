@@ -47,6 +47,21 @@ def report_error(file: Path, line: int, code: int, message: str) -> None:
     sys.exit(1)
 
 
+def collect_error(file: Path, line: int, code: int, message: str) -> None:
+    """Record a non-fatal error and continue execution.
+
+    Used for aggregating errors across multiple .tsc files so developers can
+    see all issues in one run. This function does NOT exit the process.
+    """
+    global HAS_ERRORS
+    HAS_ERRORS = True
+    print(f"{file}:{line}: (ERROR) {message}", file=sys.stderr)
+
+
+def has_errors() -> bool:
+    return HAS_ERRORS
+
+
 def report_warning(file: Path, line: int, code: int, message: str) -> None:
     global HAS_WARNINGS
     HAS_WARNINGS = True
