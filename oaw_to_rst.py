@@ -276,15 +276,15 @@ def parse_tsc_header(path: Path) -> TscHeader:
     )
 
 
-def format_tests_value(tags: List[str], max_width: int = 120, indent_spaces: int = 11) -> str:
-    text = " ".join(tags)
+def format_tests_value(tags: List[str], delimiter: str = ", ", max_width: int = 120, indent_spaces: int = 11) -> str:
+    text = delimiter.join(tags)
     if len(text) <= max_width:
         return text
     # Create wrapped lines with specific indentation for subsequent lines
     lines: List[str] = []
     current_line = ""
     for tag in tags:
-        candidate = tag if not current_line else current_line + " " + tag
+        candidate = tag if not current_line else current_line + delimiter + tag
         if len(candidate) > max_width and current_line:
             lines.append(current_line)
             current_line = tag
@@ -318,7 +318,7 @@ def generate_group_rst(
             all_tags_set.add(t)
 
     all_tags = sorted(all_tags_set)
-    tests_agg = format_tests_value(all_tags)
+    tests_agg = format_tests_value(all_tags, delimiter=", ", max_width=120, indent_spaces=11)
 
     # Build content
     lines: List[str] = []
@@ -361,8 +361,8 @@ def generate_group_rst(
         lines.append("   .. sw_test_step:: 1")
         lines.append(f"      :id: TSS_{component}_oAW_{group_conv}_Tests_{id2}")
         lines.append("      :collapse: true")
-        # Per-file tags already sorted in parse_tsc_header
-        per_file_tests = format_tests_value(hdr.requirements)
+        # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
+        per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
         lines.append(f"      :tests: {per_file_tests}")
         lines.append("      ")
         lines.append(f"      Description: {hdr.description}")
