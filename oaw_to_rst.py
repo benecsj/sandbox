@@ -215,6 +215,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     current: str | None = None
     expected_order = ["description", "input", "output", "requirements"]
     order_index = 0
+    seen_tokens: set[str] = set()
 
     while idx < len(lines):
         raw = lines[idx]
@@ -233,6 +234,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
                     report_error(path, idx + 1, 1402, f"Unexpected or out-of-order section '{name}'")
                 current = name
                 order_index += 1
+                seen_tokens.add(name)
             else:
                 if current is None:
                     report_error(path, idx + 1, 1403, "Header must start with 'Description'")
@@ -244,6 +246,11 @@ def parse_tsc_header(path: Path) -> TscHeader:
             if order_index == 0:
                 report_error(path, 1, 1404, "Header missing")
             break
+
+    # Ensure all required header tokens are present (content may be empty)
+    missing_tokens = [tok for tok in expected_order if tok not in seen_tokens]
+    if missing_tokens:
+        report_error(path, 1, 1405, f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}")
 
     # Determine if this is a placeholder-only header (all sections present but empty)
     all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
@@ -372,15 +379,21 @@ def generate_group_rst(
             lines.append("")
             lines.extend(format_multiline_field("Output", f"TODO:Update the Output field in the header of {tsc_name}", base_indent_spaces=6))
         else:
-            # Per-file tags already sorted in parse_tsc_header; per requirement indent continuation by 14 spaces
-            per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
-            lines.append(f"      :tests: {per_file_tests}")
+            # Per-file tags: if empty, emit TODO; otherwise, format comma-separated with 14-space continuation
+            if hdr.requirements:
+                per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
+                lines.append(f"      :tests: {per_file_tests}")
+            else:
+                lines.append(f"      :tests: TODO:Update the Requirements field in the header of {p.name}")
             lines.append("      ")
-            lines.extend(format_multiline_field("Description", hdr.description, base_indent_spaces=6))
+            desc_text = hdr.description or f"TODO:Update the Description field in the header of {p.name}"
+            lines.extend(format_multiline_field("Description", desc_text, base_indent_spaces=6))
             lines.append("      ")
-            lines.extend(format_multiline_field("Input", hdr.input_text, base_indent_spaces=6))
+            input_text = hdr.input_text or f"TODO:Update the Input field in the header of {p.name}"
+            lines.extend(format_multiline_field("Input", input_text, base_indent_spaces=6))
             lines.append("")
-            lines.extend(format_multiline_field("Output", hdr.output_text, base_indent_spaces=6))
+            output_text = hdr.output_text or f"TODO:Update the Output field in the header of {p.name}"
+            lines.extend(format_multiline_field("Output", output_text, base_indent_spaces=6))
         lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"
