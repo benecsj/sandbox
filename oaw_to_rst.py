@@ -370,7 +370,7 @@ def generate_group_rst(
     # Two steps per file with incrementing IDs
     counter = 1
     for p, hdr in parsed:
-        file_display_name = p.name
+        file_display_name = p.stem
         id1 = f"{counter:04d}"
         counter += 1
         id2 = f"{counter:04d}"

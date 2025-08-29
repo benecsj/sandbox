@@ -18,7 +18,7 @@ Crypto_oAW_Compiler_Tests
 
    See descriptions below
 
-   .. sw_test_step:: Crypto_Compile_KeyManagement.tsc
+   .. sw_test_step:: Crypto_Compile_KeyManagement
       :id: TSS_Crypto_oAW_Compiler_Tests_0001
       :collapse: true
 
@@ -33,7 +33,7 @@ Crypto_oAW_Compiler_Tests
 
       Output: Successful compilation artifacts for key management.
 
-   .. sw_test_step:: Crypto_Compile_Primitives.tsc
+   .. sw_test_step:: Crypto_Compile_Primitives
       :id: TSS_Crypto_oAW_Compiler_Tests_0003
       :collapse: true
 

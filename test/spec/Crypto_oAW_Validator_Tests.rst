@@ -25,7 +25,7 @@ Crypto_oAW_Validator_Tests
 
    See descriptions below
 
-   .. sw_test_step:: Crypto_Validate_Config.tsc
+   .. sw_test_step:: Crypto_Validate_Config
       :id: TSS_Crypto_oAW_Validator_Tests_0001
       :collapse: true
 
@@ -47,7 +47,7 @@ Crypto_oAW_Validator_Tests
 
       Output: Validation report without errors.
 
-   .. sw_test_step:: Crypto_Validate_EmptyHeader.tsc
+   .. sw_test_step:: Crypto_Validate_EmptyHeader
       :id: TSS_Crypto_oAW_Validator_Tests_0003
       :collapse: true
 

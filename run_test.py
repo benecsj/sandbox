@@ -187,7 +187,7 @@ def main() -> int:
     results.append(assert_comma_space_only(val))
 
     # Multiline field assertions for the multiline example test in Generator group
-    results.append(assert_contains_substring(gen, ".. sw_test_step:: Crypto_Generate_MultilineExample.tsc"))
+    results.append(assert_contains_substring(gen, ".. sw_test_step:: Crypto_Generate_MultilineExample"))
     results.append(assert_contains_substring(gen, "Description: This is a multi-line description for the generator test."))
     results.append(assert_contains_substring(gen, "It spans multiple lines to validate parsing behavior."))
     results.append(assert_contains_substring(gen, "Input: First line of input description."))

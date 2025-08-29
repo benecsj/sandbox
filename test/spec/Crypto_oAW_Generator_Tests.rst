@@ -19,7 +19,7 @@ Crypto_oAW_Generator_Tests
 
    See descriptions below
 
-   .. sw_test_step:: Crypto_Generate_KeyManagement.tsc
+   .. sw_test_step:: Crypto_Generate_KeyManagement
       :id: TSS_Crypto_oAW_Generator_Tests_0001
       :collapse: true
 
@@ -34,7 +34,7 @@ Crypto_oAW_Generator_Tests
 
       Output: Generated key management sources and headers.
 
-   .. sw_test_step:: Crypto_Generate_MultilineExample.tsc
+   .. sw_test_step:: Crypto_Generate_MultilineExample
       :id: TSS_Crypto_oAW_Generator_Tests_0003
       :collapse: true
 
@@ -52,7 +52,7 @@ Crypto_oAW_Generator_Tests
       Output: First line of output description.
               Second line of output description.
 
-   .. sw_test_step:: Crypto_Generate_Primitives.tsc
+   .. sw_test_step:: Crypto_Generate_Primitives
       :id: TSS_Crypto_oAW_Generator_Tests_0005
       :collapse: true
 
