@@ -25,12 +25,16 @@ class Config:
     spec_path: Path
 
 
+def report_error(file: Path, line: int, code: int, message: str) -> None:
+    print(f"{file}:{line}: (ERROR/{code}) {message}", file=sys.stderr)
+    sys.exit(1)
+
+
 def load_config_with_overrides(script_path: Path) -> Config:
     config_dir: Path = script_path.parent
     config_path: Path = config_dir / "config.json"
     if not config_path.exists():
-        print("ERROR config.json not found next to oaw_to_rst.py", file=sys.stderr)
-        sys.exit(1)
+        report_error(config_path, 1, 1001, "config.json not found next to oaw_to_rst.py")
 
     with config_path.open("r", encoding="utf-8") as f:
         raw = json.load(f)
@@ -46,16 +50,13 @@ def load_config_with_overrides(script_path: Path) -> Config:
     spec_path_raw = args.spec_path or raw.get("spec_path")
 
     if not component or not isinstance(component, str):
-        print("ERROR Invalid or missing 'component' in configuration", file=sys.stderr)
-        sys.exit(1)
+        report_error(config_path, 1, 1002, "Invalid or missing 'component' in configuration")
 
     if not test_path_raw or not isinstance(test_path_raw, str):
-        print("ERROR Invalid or missing 'test_path' in configuration", file=sys.stderr)
-        sys.exit(1)
+        report_error(config_path, 1, 1003, "Invalid or missing 'test_path' in configuration")
 
     if not spec_path_raw or not isinstance(spec_path_raw, str):
-        print("ERROR Invalid or missing 'spec_path' in configuration", file=sys.stderr)
-        sys.exit(1)
+        report_error(config_path, 1, 1004, "Invalid or missing 'spec_path' in configuration")
 
     test_path = Path(test_path_raw)
     spec_path = Path(spec_path_raw)
@@ -74,11 +75,9 @@ def load_config_with_overrides(script_path: Path) -> Config:
 
 def validate_paths(config: Config) -> None:
     if not config.test_path.exists() or not config.test_path.is_dir():
-        print(f"ERROR 'test_path' does not exist: {config.test_path}", file=sys.stderr)
-        sys.exit(1)
+        report_error(config.test_path, 1, 1101, "'test_path' does not exist or is not a directory")
     if not config.spec_path.exists() or not config.spec_path.is_dir():
-        print(f"ERROR 'spec_path' does not exist: {config.spec_path}", file=sys.stderr)
-        sys.exit(1)
+        report_error(config.spec_path, 1, 1102, "'spec_path' does not exist or is not a directory")
 
 
 def discover_tsc_files(config: Config) -> List[Path]:
@@ -102,8 +101,7 @@ def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str,
         stem = file_path.stem
         parts = stem.split("_")
         if len(parts) < 3 or parts[0] != component:
-            print(f"ERROR No valid group token in filename: {file_path}", file=sys.stderr)
-            sys.exit(1)
+            report_error(file_path, 1, 1201, "No valid group token in filename")
         group = parts[1]
         groups.setdefault(group, []).append(file_path)
     # Sort deterministically
@@ -128,8 +126,7 @@ def find_toc_rst(config: Config) -> Path:
     toc_name = f"{config.component}_component_test.rst"
     candidate = config.spec_path / toc_name
     if not candidate.exists():
-        print(f"ERROR {toc_name} not found in {config.spec_path}", file=sys.stderr)
-        sys.exit(1)
+        report_error(candidate, 1, 1301, f"{toc_name} not found in {config.spec_path}")
     print(f"TOC RST: {candidate} (found)")
     return candidate.resolve()
 
@@ -143,24 +140,21 @@ def cleanup_generated_group_files(component: str, toc_path: Path) -> None:
             file.unlink()
             print(f"Deleted old generated file: {file}")
         except Exception as ex:
-            print(f"ERROR Failed to delete file {file}: {ex}", file=sys.stderr)
-            sys.exit(1)
+            report_error(file, 1, 1302, f"Failed to delete file: {ex}")
 
 
 def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
-        print(f"ERROR Failed to read TOC file {toc_path}: {ex}", file=sys.stderr)
-        sys.exit(1)
+        report_error(toc_path, 1, 1303, f"Failed to read TOC file: {ex}")
     lines = text.splitlines()
     prefix = f"{component}_oAW_"
     filtered = [ln for ln in lines if not ln.lstrip().startswith(prefix)]
     try:
         toc_path.write_text("\n".join(filtered) + "\n", encoding="utf-8")
     except Exception as ex:
-        print(f"ERROR Failed to write TOC file {toc_path}: {ex}", file=sys.stderr)
-        sys.exit(1)
+        report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
 
 
 def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path) -> None:
@@ -200,8 +194,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     try:
         text = path.read_text(encoding="utf-8")
     except Exception as ex:
-        print(f"ERROR Failed to read .tsc file {path}: {ex}", file=sys.stderr)
-        sys.exit(1)
+        report_error(path, 1, 1401, f"Failed to read .tsc file: {ex}")
 
     # Normalize newlines and split
     lines = text.splitlines()
@@ -236,22 +229,19 @@ def parse_tsc_header(path: Path) -> TscHeader:
             if header_match:
                 name = header_match.group(1).lower()
                 if order_index >= len(expected_order) or name != expected_order[order_index]:
-                    print(f"ERROR Unexpected or out-of-order section '{name}' in {path}", file=sys.stderr)
-                    sys.exit(1)
+                    report_error(path, idx + 1, 1402, f"Unexpected or out-of-order section '{name}'")
                 current = name
                 order_index += 1
             else:
                 if current is None:
-                    print(f"ERROR Header must start with 'Description' in {path}", file=sys.stderr)
-                    sys.exit(1)
+                    report_error(path, idx + 1, 1403, "Header must start with 'Description'")
                 sections[current].append(content.rstrip())
             idx += 1
             continue
         else:
             # First non-comment ends header block
             if order_index == 0:
-                print(f"ERROR Header missing in {path}", file=sys.stderr)
-                sys.exit(1)
+                report_error(path, 1, 1404, "Header missing")
             break
 
     # Determine if this is a placeholder-only header (all sections present but empty)
@@ -261,8 +251,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     if not all_present_empty:
         for key in expected_order:
             if not sections[key]:
-                print(f"ERROR Missing {key.capitalize()} in header: {path}", file=sys.stderr)
-                sys.exit(1)
+                report_error(path, 1, 1405, f"Missing {key.capitalize()} in header")
 
     # Post-process requirements: split on commas and whitespace, dedupe and sort
     req_line = " ".join(sections["requirements"]).replace(",", " ")
@@ -270,8 +259,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     tags = sorted(set(tags_raw))
 
     if not tags and not all_present_empty:
-        print(f"ERROR Requirements must contain at least one tag in {path}", file=sys.stderr)
-        sys.exit(1)
+        report_error(path, 1, 1406, "Requirements must contain at least one tag")
 
     return TscHeader(
         description="\n".join(sections["description"]).strip(),
@@ -406,8 +394,7 @@ def generate_group_rst(
         out_path.write_text(content, encoding="utf-8")
         print(f"Generated group RST: {out_path}")
     except Exception as ex:
-        print(f"ERROR Failed to write group RST {out_path}: {ex}", file=sys.stderr)
-        sys.exit(1)
+        report_error(out_path, 1, 1501, f"Failed to write group RST: {ex}")
     return out_path
 
 
