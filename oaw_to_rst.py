@@ -35,15 +35,21 @@ def load_config_with_overrides(script_path: Path) -> Config:
     config_dir: Path = script_path.parent
     config_path: Path = config_dir / "config.json"
     if not config_path.exists():
-        report_error(config_path, 1, 1001, "config.json not found next to oaw_to_rst.py")
+        report_error(
+            config_path, 1, 1001, "config.json not found next to oaw_to_rst.py"
+        )
 
     with config_path.open("r", encoding="utf-8") as f:
         raw = json.load(f)
 
     parser = argparse.ArgumentParser(description="oAW to RST generator")
     parser.add_argument("--component", type=str, help="Component name", default=None)
-    parser.add_argument("--test_path", type=str, help="Path to test files", default=None)
-    parser.add_argument("--spec_path", type=str, help="Path to spec files", default=None)
+    parser.add_argument(
+        "--test_path", type=str, help="Path to test files", default=None
+    )
+    parser.add_argument(
+        "--spec_path", type=str, help="Path to spec files", default=None
+    )
     args = parser.parse_args()
 
     component = args.component or raw.get("component")
@@ -51,13 +57,19 @@ def load_config_with_overrides(script_path: Path) -> Config:
     spec_path_raw = args.spec_path or raw.get("spec_path")
 
     if not component or not isinstance(component, str):
-        report_error(config_path, 1, 1002, "Invalid or missing 'component' in configuration")
+        report_error(
+            config_path, 1, 1002, "Invalid or missing 'component' in configuration"
+        )
 
     if not test_path_raw or not isinstance(test_path_raw, str):
-        report_error(config_path, 1, 1003, "Invalid or missing 'test_path' in configuration")
+        report_error(
+            config_path, 1, 1003, "Invalid or missing 'test_path' in configuration"
+        )
 
     if not spec_path_raw or not isinstance(spec_path_raw, str):
-        report_error(config_path, 1, 1004, "Invalid or missing 'spec_path' in configuration")
+        report_error(
+            config_path, 1, 1004, "Invalid or missing 'spec_path' in configuration"
+        )
 
     test_path = Path(test_path_raw)
     spec_path = Path(spec_path_raw)
@@ -76,9 +88,19 @@ def load_config_with_overrides(script_path: Path) -> Config:
 
 def validate_paths(config: Config) -> None:
     if not config.test_path.exists() or not config.test_path.is_dir():
-        report_error(config.test_path, 1, 1101, "'test_path' does not exist or is not a directory")
+        report_error(
+            config.test_path,
+            1,
+            1101,
+            "'test_path' does not exist or is not a directory",
+        )
     if not config.spec_path.exists() or not config.spec_path.is_dir():
-        report_error(config.spec_path, 1, 1102, "'spec_path' does not exist or is not a directory")
+        report_error(
+            config.spec_path,
+            1,
+            1102,
+            "'spec_path' does not exist or is not a directory",
+        )
 
 
 def discover_tsc_files(config: Config) -> List[Path]:
@@ -96,7 +118,9 @@ def discover_tsc_files(config: Config) -> List[Path]:
     return results
 
 
-def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str, List[Path]]:
+def group_tsc_files_by_group(
+    component: str, tsc_files: List[Path]
+) -> Dict[str, List[Path]]:
     groups: Dict[str, List[Path]] = {}
     for file_path in tsc_files:
         stem = file_path.stem
@@ -158,7 +182,9 @@ def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
         report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
 
 
-def append_group_links_to_toc(component: str, groups: List[str], toc_path: Path) -> None:
+def append_group_links_to_toc(
+    component: str, groups: List[str], toc_path: Path
+) -> None:
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -201,6 +227,7 @@ def parse_tsc_header(path: Path) -> TscHeader:
     lines = text.splitlines()
     # Only consider leading commented block
     idx = 0
+
     # Helper to strip '//' and optional single space
     def strip_comment_prefix(s: str) -> str:
         if not s.lstrip().startswith("//"):
@@ -227,17 +254,29 @@ def parse_tsc_header(path: Path) -> TscHeader:
             continue
         if raw.lstrip().startswith("//"):
             content = strip_comment_prefix(raw)
-            header_match = re.fullmatch(r"(?i)(description|input|output|requirements)\s*", content)
+            header_match = re.fullmatch(
+                r"(?i)(description|input|output|requirements)\s*", content
+            )
             if header_match:
                 name = header_match.group(1).lower()
-                if order_index >= len(expected_order) or name != expected_order[order_index]:
-                    report_error(path, idx + 1, 1402, f"Unexpected or out-of-order section '{name}'")
+                if (
+                    order_index >= len(expected_order)
+                    or name != expected_order[order_index]
+                ):
+                    report_error(
+                        path,
+                        idx + 1,
+                        1402,
+                        f"Unexpected or out-of-order section '{name}'",
+                    )
                 current = name
                 order_index += 1
                 seen_tokens.add(name)
             else:
                 if current is None:
-                    report_error(path, idx + 1, 1403, "Header must start with 'Description'")
+                    report_error(
+                        path, idx + 1, 1403, "Header must start with 'Description'"
+                    )
                 sections[current].append(content.rstrip())
             idx += 1
             continue
@@ -250,7 +289,12 @@ def parse_tsc_header(path: Path) -> TscHeader:
     # Ensure all required header tokens are present (content may be empty)
     missing_tokens = [tok for tok in expected_order if tok not in seen_tokens]
     if missing_tokens:
-        report_error(path, 1, 1405, f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}")
+        report_error(
+            path,
+            1,
+            1405,
+            f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}",
+        )
 
     # Determine if this is a placeholder-only header (all sections present but empty)
     all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
@@ -271,7 +315,12 @@ def parse_tsc_header(path: Path) -> TscHeader:
     )
 
 
-def format_tests_value(tags: List[str], delimiter: str = ", ", max_width: int = 120, indent_spaces: int = 11) -> str:
+def format_tests_value(
+    tags: List[str],
+    delimiter: str = ", ",
+    max_width: int = 120,
+    indent_spaces: int = 11,
+) -> str:
     text = delimiter.join(tags)
     if len(text) <= max_width:
         return text
@@ -294,7 +343,9 @@ def format_tests_value(tags: List[str], delimiter: str = ", ", max_width: int = 
     return ("\n" + indent).join(lines)
 
 
-def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -> List[str]:
+def format_multiline_field(
+    label: str, text: str, base_indent_spaces: int = 6
+) -> List[str]:
     lines: List[str] = []
     indent = " " * base_indent_spaces
     value_indent = " " * (base_indent_spaces + len(label) + 2)  # account for ': '
@@ -326,7 +377,9 @@ def generate_group_rst(
             all_tags_set.add(t)
 
     all_tags = sorted(all_tags_set)
-    tests_agg = format_tests_value(all_tags, delimiter=", ", max_width=120, indent_spaces=11)
+    tests_agg = format_tests_value(
+        all_tags, delimiter=", ", max_width=120, indent_spaces=11
+    )
 
     # Build content
     lines: List[str] = []
@@ -340,7 +393,9 @@ def generate_group_rst(
     lines.append("")
     lines.append(f".. sw_test:: {component}_oAW_{group_conv}_Tests")
     lines.append(f"   :id: TS_{component}_oAW_{group_conv}_Tests")
-    lines.append(f"   :tst_shortdescription: Tests for successful {group} of {component}")
+    lines.append(
+        f"   :tst_shortdescription: Tests for successful {group} of {component}"
+    )
     lines.append("   :tst_level: Component Requirement Test")
     lines.append(f"   :tst_designdoc: {component}_VerificationDocumentation.docx")
     lines.append("   :tst_envconditions: oAW on PC")
@@ -371,29 +426,68 @@ def generate_group_rst(
         lines.append("      :collapse: true")
         if hdr.placeholder:
             tsc_name = p.name
-            lines.append(f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}")
+            lines.append(
+                f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}"
+            )
             lines.append("      ")
-            lines.extend(format_multiline_field("Description", f"TODO:Update the Description field in the header of {tsc_name}", base_indent_spaces=6))
+            lines.extend(
+                format_multiline_field(
+                    "Description",
+                    f"TODO:Update the Description field in the header of {tsc_name}",
+                    base_indent_spaces=6,
+                )
+            )
             lines.append("      ")
-            lines.extend(format_multiline_field("Input", f"TODO:Update the Input field in the header of {tsc_name}", base_indent_spaces=6))
+            lines.extend(
+                format_multiline_field(
+                    "Input",
+                    f"TODO:Update the Input field in the header of {tsc_name}",
+                    base_indent_spaces=6,
+                )
+            )
             lines.append("")
-            lines.extend(format_multiline_field("Output", f"TODO:Update the Output field in the header of {tsc_name}", base_indent_spaces=6))
+            lines.extend(
+                format_multiline_field(
+                    "Output",
+                    f"TODO:Update the Output field in the header of {tsc_name}",
+                    base_indent_spaces=6,
+                )
+            )
         else:
             # Per-file tags: if empty, emit TODO; otherwise, format comma-separated with 14-space continuation
             if hdr.requirements:
-                per_file_tests = format_tests_value(hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14)
+                per_file_tests = format_tests_value(
+                    hdr.requirements, delimiter=", ", max_width=120, indent_spaces=14
+                )
                 lines.append(f"      :tests: {per_file_tests}")
             else:
-                lines.append(f"      :tests: TODO:Update the Requirements field in the header of {p.name}")
+                lines.append(
+                    f"      :tests: TODO:Update the Requirements field in the header of {p.name}"
+                )
             lines.append("      ")
-            desc_text = hdr.description or f"TODO:Update the Description field in the header of {p.name}"
-            lines.extend(format_multiline_field("Description", desc_text, base_indent_spaces=6))
+            desc_text = (
+                hdr.description
+                or f"TODO:Update the Description field in the header of {p.name}"
+            )
+            lines.extend(
+                format_multiline_field("Description", desc_text, base_indent_spaces=6)
+            )
             lines.append("      ")
-            input_text = hdr.input_text or f"TODO:Update the Input field in the header of {p.name}"
-            lines.extend(format_multiline_field("Input", input_text, base_indent_spaces=6))
+            input_text = (
+                hdr.input_text
+                or f"TODO:Update the Input field in the header of {p.name}"
+            )
+            lines.extend(
+                format_multiline_field("Input", input_text, base_indent_spaces=6)
+            )
             lines.append("")
-            output_text = hdr.output_text or f"TODO:Update the Output field in the header of {p.name}"
-            lines.extend(format_multiline_field("Output", output_text, base_indent_spaces=6))
+            output_text = (
+                hdr.output_text
+                or f"TODO:Update the Output field in the header of {p.name}"
+            )
+            lines.extend(
+                format_multiline_field("Output", output_text, base_indent_spaces=6)
+            )
         lines.append("")
 
     content = "\n".join(lines).rstrip() + "\n"
@@ -405,12 +499,16 @@ def generate_group_rst(
     return out_path
 
 
-def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[Tuple[Path, TscHeader]]]:
+def parse_all_headers(
+    tsc_file_groups: Dict[str, List[Path]],
+) -> Dict[str, List[Tuple[Path, TscHeader]]]:
     parsed_groups: Dict[str, List[Tuple[Path, TscHeader]]] = {}
     for group, files in tsc_file_groups.items():
         parsed_list: List[Tuple[Path, TscHeader]] = []
         for p in files:
-            hdr = parse_tsc_header(p)  # will exit on error; validates before any RST modifications
+            hdr = parse_tsc_header(
+                p
+            )  # will exit on error; validates before any RST modifications
             parsed_list.append((p, hdr))
         parsed_groups[group] = parsed_list
     return parsed_groups
@@ -445,4 +543,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
