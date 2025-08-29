@@ -27,12 +27,11 @@
       :id: TSS_{{ section }}_{{ step.id2 }}
       :collapse: true
 {{ step.tests_line }}
-      
+
 {{ step.desc_lines | join('\n') }}
-      
+
 {{ step.input_lines | join('\n') }}
 
 {{ step.output_lines | join('\n') }}
 
 {% endfor %}
-
