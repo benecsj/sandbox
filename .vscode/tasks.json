@@ -5,7 +5,7 @@
     {
       "label": "Run oaw_to_rst.py",
       "type": "shell",
-      "command": "python3 ${workspaceFolder}/oaw_to_rst.py",
+      "command": "python ${workspaceFolder}/oaw_to_rst.py",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -35,7 +35,7 @@
     {
       "label": "Run run_test.py",
       "type": "shell",
-      "command": "python3 ${workspaceFolder}/run_test.py",
+      "command": "python ${workspaceFolder}/run_test.py",
       "group": "test",
       "presentation": {
         "reveal": "always",
