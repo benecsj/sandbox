@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Utilities for discovering and parsing ``.tsc`` test files."""
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +12,8 @@ from .utils import report_error, collect_error
 
 
 def validate_paths(config: Config) -> None:
+    """Verify that configured test/spec directories exist."""
+
     if not config.test_path.exists() or not config.test_path.is_dir():
         report_error(config.test_path, 1, 1101, "'test_path' does not exist or is not a directory")
     if not config.spec_path.exists() or not config.spec_path.is_dir():
@@ -17,6 +21,8 @@ def validate_paths(config: Config) -> None:
 
 
 def discover_tsc_files(config: Config) -> List[Path]:
+    """Return all test files for the component under ``config.test_path``."""
+
     prefix = f"{config.component}_"
     results: List[Path] = []
     print("Test (.tsc) files found:")
@@ -33,6 +39,8 @@ def discover_tsc_files(config: Config) -> List[Path]:
 
 
 def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str, List[Path]]:
+    """Group TSC files by their embedded group token."""
+
     groups: Dict[str, List[Path]] = {}
     for file_path in tsc_files:
         stem = file_path.stem
@@ -53,7 +61,6 @@ class TscHeader:
     input_text: str
     output_text: str
     requirements: List[str]
-    placeholder: bool
     desc_line: int
     input_line: int
     output_line: int
@@ -61,6 +68,8 @@ class TscHeader:
 
 
 def parse_tsc_header(path: Path) -> TscHeader | None:
+    """Parse the structured comment header from a ``.tsc`` file."""
+
     try:
         text = path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -122,8 +131,6 @@ def parse_tsc_header(path: Path) -> TscHeader | None:
         collect_error(path, 1, 1405, f"Missing header section(s): {', '.join(t.capitalize() for t in missing_tokens)}")
         return None
 
-    all_present_empty = all(len(sections[key]) == 0 for key in expected_order)
-
     req_line = " ".join(sections["requirements"]).replace(",", " ")
     tags_raw = [t.strip() for t in req_line.split() if t.strip()]
     tags = sorted(set(tags_raw))
@@ -133,7 +140,6 @@ def parse_tsc_header(path: Path) -> TscHeader | None:
         input_text="\n".join(sections["input"]).strip(),
         output_text="\n".join(sections["output"]).strip(),
         requirements=tags,
-        placeholder=all_present_empty,
         desc_line=header_lines.get("description", 1),
         input_line=header_lines.get("input", 1),
         output_line=header_lines.get("output", 1),
@@ -142,6 +148,8 @@ def parse_tsc_header(path: Path) -> TscHeader | None:
 
 
 def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[Tuple[Path, TscHeader]]]:
+    """Parse headers for all grouped TSC files."""
+
     parsed_groups: Dict[str, List[Tuple[Path, TscHeader]]] = {}
     for group, files in tsc_file_groups.items():
         parsed_list: List[Tuple[Path, TscHeader]] = []

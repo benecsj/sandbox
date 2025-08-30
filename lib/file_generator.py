@@ -1,32 +1,40 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+"""Generate reStructuredText files from parsed test specifications."""
+
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
+from textwrap import TextWrapper
 
 from .utils import report_error, report_warning, ensure_jinja2_installed
 from .file_handler import TscHeader
 
 
 def convert_group_name(group: str, group_name_mappings: Dict[str, str]) -> str:
+    """Map ``group`` to its configured display name."""
+
     lower = group.lower()
     return group_name_mappings.get(lower, group)
 
 
 def find_toc_rst(component: str, spec_path: Path) -> Path:
+    """Locate the component's TOC RST file, raising an error if missing."""
+
     toc_name = f"{component}_component_test.rst"
     candidate = spec_path / toc_name
     if not candidate.exists():
         report_error(candidate, 1, 1301, f"{toc_name} not found in {spec_path}")
-    print(f"Table of content rst file:")
+    print("Table of content rst file:")
     print(f"{candidate}")
     print("")
     return candidate.resolve()
 
 
 def cleanup_generated_group_files(component: str, toc_path: Path) -> None:
+    """Remove previously generated group files to avoid stale data."""
+
     toc_dir = toc_path.parent
-    print(f"Deleted old test specification files:")
+    print("Deleted old test specification files:")
     for file in toc_dir.glob(f"{component}_oAW_*.rst"):
         if file == toc_path:
             continue
@@ -38,6 +46,8 @@ def cleanup_generated_group_files(component: str, toc_path: Path) -> None:
 
 
 def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
+    """Strip previously added group entries from the TOC file."""
+
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -54,6 +64,8 @@ def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
 def append_group_links_to_toc(
     component: str, groups: List[str], toc_path: Path, group_name_mappings: Dict[str, str]
 ) -> None:
+    """Append group-specific RST links to the TOC file."""
+
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
@@ -75,30 +87,23 @@ def append_group_links_to_toc(
 
 
 def format_tests_value(tags: List[str], delimiter: str, max_width: int, indent_spaces: int) -> str:
-    tokens: List[str] = [
-        (f"{tag}," if idx < len(tags) - 1 else tag) for idx, tag in enumerate(tags)
-    ]
+    """Wrap requirement tags into a single formatted string."""
+
+    if not tags:
+        return ""
+    tokens = [f"{tag}," for tag in tags[:-1]] + [tags[-1]]
     text = delimiter.join(tokens)
-    if len(text) <= max_width:
-        return text
-    lines: List[str] = []
-    current_line = ""
-    for token in tokens:
-        candidate = token if not current_line else current_line + delimiter + token
-        if len(candidate) > max_width and current_line:
-            lines.append(current_line)
-            current_line = token
-        else:
-            current_line = candidate
-    if current_line:
-        lines.append(current_line)
-    if len(lines) <= 1:
-        return lines[0]
-    indent = " " * indent_spaces
-    return ("\n" + indent).join(lines)
+    wrapper = TextWrapper(
+        width=max_width,
+        subsequent_indent=" " * indent_spaces,
+        break_long_words=False,
+    )
+    return wrapper.fill(text)
 
 
 def format_multiline_field(label: str, text: str, base_indent_spaces: int = 6) -> List[str]:
+    """Format a header field into indented lines for RST output."""
+
     lines: List[str] = []
     indent = " " * base_indent_spaces
     value_indent = " " * (base_indent_spaces + len(label) + 2)
@@ -120,6 +125,8 @@ def generate_group_rst(
     template_dir: Path,
     group_name_mappings: Dict[str, str],
 ) -> Path:
+    """Render the RST file for a specific group of tests."""
+
     group_conv = convert_group_name(group, group_name_mappings)
     out_path = toc_dir / f"{component}_oAW_{group_conv}_Tests.rst"
 
@@ -134,6 +141,40 @@ def generate_group_rst(
     # Prepare step contexts
     steps = []
     counter = 1
+
+    def build_tests_line(path: Path, header: TscHeader) -> str:
+        if header.requirements:
+            per_file_tests = format_tests_value(
+                header.requirements, delimiter=" ", max_width=120, indent_spaces=14
+            )
+            return f"      :tests: {per_file_tests}"
+        report_warning(
+            path,
+            header.requirements_line,
+            2001,
+            "Missing Requirements content; emitting TODO in test specification rst file",
+        )
+        return (
+            f"      :tests: TODO:Update the Requirements field in the header of {path.name}"
+        )
+
+    def build_field_lines(
+        label: str, content: str, line_no: int, code: int, path: Path
+    ) -> List[str]:
+        if content:
+            return format_multiline_field(label, content, base_indent_spaces=6)
+        report_warning(
+            path,
+            line_no,
+            code,
+            f"Missing {label} content; emitting TODO in test specification rst file",
+        )
+        return format_multiline_field(
+            label,
+            f"TODO:Update the {label} field in the header of {path.name}",
+            base_indent_spaces=6,
+        )
+
     for p, hdr in parsed:
         file_display_name = p.stem
         id1 = f"{counter:04d}"
@@ -141,115 +182,10 @@ def generate_group_rst(
         id2 = f"{counter:04d}"
         counter += 1
 
-        if hdr.placeholder:
-            tsc_name = p.name
-            report_warning(
-                p,
-                hdr.requirements_line,
-                2001,
-                "Missing Requirements content; emitting TODO in test specification rst file",
-            )
-            tests_line = (
-                f"      :tests: TODO:Update the Requirements field in the header of {tsc_name}"
-            )
-            report_warning(
-                p,
-                hdr.desc_line,
-                2002,
-                "Missing Description content; emitting TODO in test specification rst file",
-            )
-            desc_lines = format_multiline_field(
-                "Description",
-                f"TODO:Update the Description field in the header of {tsc_name}",
-                base_indent_spaces=6,
-            )
-            report_warning(
-                p,
-                hdr.input_line,
-                2003,
-                "Missing Input content; emitting TODO in test specification rst file",
-            )
-            input_lines = format_multiline_field(
-                "Input",
-                f"TODO:Update the Input field in the header of {tsc_name}",
-                base_indent_spaces=6,
-            )
-            report_warning(
-                p,
-                hdr.output_line,
-                2004,
-                "Missing Output content; emitting TODO in test specification rst file",
-            )
-            output_lines = format_multiline_field(
-                "Output",
-                f"TODO:Update the Output field in the header of {tsc_name}",
-                base_indent_spaces=6,
-            )
-        else:
-            if hdr.requirements:
-                per_file_tests = format_tests_value(
-                    hdr.requirements, delimiter=" ", max_width=120, indent_spaces=14
-                )
-                tests_line = f"      :tests: {per_file_tests}"
-            else:
-                report_warning(
-                    p,
-                    hdr.requirements_line,
-                    2001,
-                    "Missing Requirements content; emitting TODO in test specification rst file",
-                )
-                tests_line = (
-                    f"      :tests: TODO:Update the Requirements field in the header of {p.name}"
-                )
-
-            if hdr.description:
-                desc_lines = format_multiline_field(
-                    "Description", hdr.description, base_indent_spaces=6
-                )
-            else:
-                report_warning(
-                    p,
-                    hdr.desc_line,
-                    2002,
-                    "Missing Description content; emitting TODO in test specification rst file",
-                )
-                desc_lines = format_multiline_field(
-                    "Description",
-                    f"TODO:Update the Description field in the header of {p.name}",
-                    base_indent_spaces=6,
-                )
-
-            if hdr.input_text:
-                input_lines = format_multiline_field("Input", hdr.input_text, base_indent_spaces=6)
-            else:
-                report_warning(
-                    p,
-                    hdr.input_line,
-                    2003,
-                    "Missing Input content; emitting TODO in test specification rst file",
-                )
-                input_lines = format_multiline_field(
-                    "Input",
-                    f"TODO:Update the Input field in the header of {p.name}",
-                    base_indent_spaces=6,
-                )
-
-            if hdr.output_text:
-                output_lines = format_multiline_field(
-                    "Output", hdr.output_text, base_indent_spaces=6
-                )
-            else:
-                report_warning(
-                    p,
-                    hdr.output_line,
-                    2004,
-                    "Missing Output content; emitting TODO in test specification rst file",
-                )
-                output_lines = format_multiline_field(
-                    "Output",
-                    f"TODO:Update the Output field in the header of {p.name}",
-                    base_indent_spaces=6,
-                )
+        tests_line = build_tests_line(p, hdr)
+        desc_lines = build_field_lines("Description", hdr.description, hdr.desc_line, 2002, p)
+        input_lines = build_field_lines("Input", hdr.input_text, hdr.input_line, 2003, p)
+        output_lines = build_field_lines("Output", hdr.output_text, hdr.output_line, 2004, p)
 
         steps.append(
             {

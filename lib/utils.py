@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+"""Utility helpers for status banners and dependency management."""
+
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
-# ANSI colors
+
 RED = "\033[31m"
 YELLOW = "\033[33m"
 GREEN = "\033[32m"
@@ -20,6 +22,7 @@ def _print_banner(text: str, color: str) -> None:
 
 
 def print_final_status_banner() -> None:
+    """Display a summary banner reflecting overall script status."""
     global HAS_WARNINGS, HAS_ERRORS
     if HAS_ERRORS:
         _print_banner(
@@ -39,6 +42,7 @@ def print_final_status_banner() -> None:
 
 
 def report_error(file: Path, line: int, code: int, message: str) -> None:
+    """Log a fatal error, show the final banner, and exit."""
     global HAS_ERRORS
     HAS_ERRORS = True
     print(f"{file}:{line}: (ERROR) {message}", file=sys.stderr)
@@ -59,16 +63,19 @@ def collect_error(file: Path, line: int, code: int, message: str) -> None:
 
 
 def has_errors() -> bool:
+    """Return True if any errors have been recorded."""
     return HAS_ERRORS
 
 
 def report_warning(file: Path, line: int, code: int, message: str) -> None:
+    """Log a warning without halting execution."""
     global HAS_WARNINGS
     HAS_WARNINGS = True
     print(f"{file}:{line}: (WARNING) {message}", file=sys.stderr)
 
 
 def ensure_jinja2_installed() -> None:
+    """Ensure ``Jinja2`` is available, installing it on demand."""
     try:
         import jinja2  # noqa: F401
         return
