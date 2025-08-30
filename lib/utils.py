@@ -16,8 +16,11 @@ RESET = "\033[0m"
 HAS_WARNINGS: bool = False
 HAS_ERRORS: bool = False
 
+EXIT_FAILURE = 1
+
 
 def _print_banner(text: str, color: str) -> None:
+    """Render a colored banner to stdout."""
     print(f"{color}{text}{RESET}")
 
 
@@ -41,17 +44,17 @@ def print_final_status_banner() -> None:
         )
 
 
-def report_error(file: Path, line: int, code: int, message: str) -> None:
+def report_error(file: Path, line: int, message: str) -> None:
     """Log a fatal error, show the final banner, and exit."""
     global HAS_ERRORS
     HAS_ERRORS = True
     print(f"{file}:{line}: (ERROR) {message}", file=sys.stderr)
     # Print banner at the end before exiting
     print_final_status_banner()
-    sys.exit(1)
+    sys.exit(EXIT_FAILURE)
 
 
-def collect_error(file: Path, line: int, code: int, message: str) -> None:
+def collect_error(file: Path, line: int, message: str) -> None:
     """Record a non-fatal error and continue execution.
 
     Used for aggregating errors across multiple .tsc files so developers can
@@ -67,7 +70,7 @@ def has_errors() -> bool:
     return HAS_ERRORS
 
 
-def report_warning(file: Path, line: int, code: int, message: str) -> None:
+def report_warning(file: Path, line: int, message: str) -> None:
     """Log a warning without halting execution."""
     global HAS_WARNINGS
     HAS_WARNINGS = True
