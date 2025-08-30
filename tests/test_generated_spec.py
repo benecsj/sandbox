@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import List
 
-import pytest
+import unittest
 import run_test as rt
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -181,7 +181,22 @@ def collect_results(base_dir: Path) -> List[rt.CheckResult]:
 RESULTS = collect_results(BASE_DIR)
 
 
-@pytest.mark.parametrize("result", RESULTS, ids=[r.name for r in RESULTS])
-def test_generated_spec(result: rt.CheckResult) -> None:
-    assert result.passed, result.message
+class TestGeneratedSpec(unittest.TestCase):
+    pass
+
+
+def _make_test(result: rt.CheckResult):
+    def test(self):
+        self.assertTrue(result.passed, result.message)
+
+    return test
+
+
+for idx, res in enumerate(RESULTS):
+    name = re.sub(r"\W|^(?=\d)", "_", res.name)
+    setattr(TestGeneratedSpec, f"test_{idx:03d}_{name}", _make_test(res))
+
+
+if __name__ == "__main__":
+    unittest.main()
 
