@@ -126,23 +126,16 @@ def assert_todo_count(path: Path, expected: int) -> None:
 
 
 def main() -> int:
-    from tests.test_generated_spec import CHECKS
+    # Delegate to unittest discovery so simplified tests can run without CHECKS.
+    import unittest
 
-    failures = 0
-    for name, fn in CHECKS:
-        try:
-            fn()
-            print(f"PASS - {name}")
-        except TestError as e:
-            failures += 1
-            print(f"FAIL - {name}")
-            print(f"  {e}")
+    # Ensure we can import as module name 'run_test' consistently
+    sys.modules.setdefault("run_test", sys.modules[__name__])
 
-    if failures:
-        print(f"\n{failures} assertion(s) failed.", file=sys.stderr)
-        return 1
-    print("\nAll assertions passed.")
-    return 0
+    suite = unittest.defaultTestLoader.discover("tests")
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return 0 if result.wasSuccessful() else 1
 
 
 if __name__ == "__main__":
