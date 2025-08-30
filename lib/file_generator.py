@@ -23,7 +23,7 @@ def find_toc_rst(component: str, spec_path: Path) -> Path:
     toc_name = f"{component}_component_test.rst"
     candidate = spec_path / toc_name
     if not candidate.exists():
-        report_error(candidate, 1, 1301, f"{toc_name} not found in {spec_path}")
+        report_error(candidate, 1, f"{toc_name} not found in {spec_path}")
     print("Table of content rst file:")
     print(f"{candidate}")
     print("")
@@ -42,7 +42,7 @@ def cleanup_generated_group_files(component: str, toc_path: Path) -> None:
             file.unlink()
             print(f"{file}")
         except Exception as ex:
-            report_error(file, 1, 1302, f"Failed to delete file: {ex}")
+            report_error(file, 1, f"Failed to delete file: {ex}")
 
 
 def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
@@ -51,14 +51,14 @@ def remove_generated_lines_from_toc(component: str, toc_path: Path) -> None:
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
-        report_error(toc_path, 1, 1303, f"Failed to read TOC file: {ex}")
+        report_error(toc_path, 1, f"Failed to read TOC file: {ex}")
     lines = text.splitlines()
     prefix = f"{component}_oAW_"
     filtered = [ln for ln in lines if not ln.lstrip().startswith(prefix)]
     try:
         toc_path.write_text("\n".join(filtered) + "\n", encoding="utf-8")
     except Exception as ex:
-        report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
+        report_error(toc_path, 1, f"Failed to write TOC file: {ex}")
 
 
 def append_group_links_to_toc(
@@ -69,7 +69,7 @@ def append_group_links_to_toc(
     try:
         text = toc_path.read_text(encoding="utf-8")
     except Exception as ex:
-        report_error(toc_path, 1, 1303, f"Failed to read TOC file: {ex}")
+        report_error(toc_path, 1, f"Failed to read TOC file: {ex}")
 
     appended_lines: List[str] = []
     for group in groups:
@@ -83,7 +83,7 @@ def append_group_links_to_toc(
     try:
         toc_path.write_text(text, encoding="utf-8")
     except Exception as ex:
-        report_error(toc_path, 1, 1304, f"Failed to write TOC file: {ex}")
+        report_error(toc_path, 1, f"Failed to write TOC file: {ex}")
 
 
 def format_tests_value(tags: List[str], delimiter: str, max_width: int, indent_spaces: int) -> str:
@@ -151,7 +151,6 @@ def generate_group_rst(
         report_warning(
             path,
             header.requirements_line,
-            2001,
             "Missing Requirements content; emitting TODO in test specification rst file",
         )
         return (
@@ -159,14 +158,13 @@ def generate_group_rst(
         )
 
     def build_field_lines(
-        label: str, content: str, line_no: int, code: int, path: Path
+        label: str, content: str, line_no: int, path: Path
     ) -> List[str]:
         if content:
             return format_multiline_field(label, content, base_indent_spaces=6)
         report_warning(
             path,
             line_no,
-            code,
             f"Missing {label} content; emitting TODO in test specification rst file",
         )
         return format_multiline_field(
@@ -183,9 +181,15 @@ def generate_group_rst(
         counter += 1
 
         tests_line = build_tests_line(p, hdr)
-        desc_lines = build_field_lines("Description", hdr.description, hdr.desc_line, 2002, p)
-        input_lines = build_field_lines("Input", hdr.input_text, hdr.input_line, 2003, p)
-        output_lines = build_field_lines("Output", hdr.output_text, hdr.output_line, 2004, p)
+        desc_lines = build_field_lines(
+            "Description", hdr.description, hdr.desc_line, p
+        )
+        input_lines = build_field_lines(
+            "Input", hdr.input_text, hdr.input_line, p
+        )
+        output_lines = build_field_lines(
+            "Output", hdr.output_text, hdr.output_line, p
+        )
 
         steps.append(
             {
@@ -229,5 +233,5 @@ def generate_group_rst(
         out_path.write_text(content, encoding="utf-8")
         print(f"{out_path}")
     except Exception as ex:
-        report_error(out_path, 1, 1501, f"Failed to write group RST: {ex}")
+        report_error(out_path, 1, f"Failed to write group RST: {ex}")
     return out_path
