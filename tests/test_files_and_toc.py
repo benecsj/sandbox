@@ -1,0 +1,44 @@
+from __future__ import annotations
+
+from pathlib import Path
+import unittest
+
+from tests._base import UnifiedTestCase
+import run_test as rt
+
+
+class TestFilesAndTOC(UnifiedTestCase):
+    def test_files_exist(self) -> None:
+        for p in [self.toc, self.gen, self.cmp, self.val]:
+            rt.assert_exists(p)
+
+    def test_toc_links_present(self) -> None:
+        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Generator_Tests.rst")
+        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Compiler_Tests.rst")
+        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Validator_Tests.rst")
+
+    def test_toc_unique_links(self) -> None:
+        toc_text = rt.read_text(self.toc)
+        for fname in [
+            f"{self.component}_oAW_Generator_Tests.rst",
+            f"{self.component}_oAW_Compiler_Tests.rst",
+            f"{self.component}_oAW_Validator_Tests.rst",
+        ]:
+            count = toc_text.count(fname)
+            if count != 1:
+                raise rt.TestError(f"Expected 1 occurrence of {fname}, found {count}")
+
+    def test_toc_order(self) -> None:
+        rt.assert_toc_order(
+            self.toc,
+            [
+                f"{self.component}_oAW_Compiler_Tests.rst",
+                f"{self.component}_oAW_Generator_Tests.rst",
+                f"{self.component}_oAW_Validator_Tests.rst",
+            ],
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
+
