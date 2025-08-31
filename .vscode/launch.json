@@ -1,0 +1,37 @@
+{
+  // VS Code debug configurations for Python
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: oaw_to_rst (Default Config)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/oaw_to_rst.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Python: oaw_to_rst (External Config)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/oaw_to_rst.py",
+      "args": [
+        "--config",
+        "${input:configPath}"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "configPath",
+      "type": "promptString",
+      "description": "Path to external config JSON (absolute or relative to workspace)",
+      "default": "${workspaceFolder}/config/config.json"
+    }
+  ]
+}
+
