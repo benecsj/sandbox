@@ -9,8 +9,18 @@
             "titleBar.inactiveBackground": "#330000",
             "titleBar.inactiveForeground": "#999999"
         },
+        "codex.confirmCommand": false,
+        "codex.showStatusBar": "always",
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
+        "python.testing.unittestArgs": [
+            "-v",
+            "-s",
+            "tests",
+            "-p",
+            "test_*.py"
+        ],
+        "python.testing.cwd": "${workspaceFolder}",
         "forbeslindesay-taskrunner.source": "Workspace",
         // General settings
         "editor.formatOnSave": true,
@@ -59,9 +69,6 @@
         },
         "python.defaultInterpreterPath": "${env:PRV_PYTHONHOME}/python.exe",
         "python.terminal.activateEnvironment": true,
-        "python.testing.unittestArgs": [
-            "tests"
-        ],
         "terminal.integrated.defaultProfile.windows": "PowerShell",
         "terminal.integrated.profiles.windows": {
             "PowerShell": {
