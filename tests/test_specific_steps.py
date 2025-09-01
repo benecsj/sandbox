@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Tests asserting specific step content within generated group files."""
+
 import unittest
 
 try:
@@ -14,7 +16,10 @@ import run_test as rt
 
 
 class TestSpecificStepContents(UnifiedTestCase):
+    """Spot checks for step blocks' Description/Input/Output contents."""
+
     def test_multiline_fields_present(self) -> None:
+        """Generator multiline example renders all continuation lines."""
         rt.assert_contains_substring(self.gen, ".. sw_test_step:: Bogus_Generate_MultilineExample")
         rt.assert_contains_substring(
             self.gen, "Description: This is a multi-line description for the generator test."
@@ -28,6 +33,7 @@ class TestSpecificStepContents(UnifiedTestCase):
         rt.assert_contains_substring(self.gen, "Second line of output description.")
 
     def test_specific_step_contents(self) -> None:
+        """Specific steps contain expected text snippets across groups."""
         rt.assert_contains_substring(self.cmp, ".. sw_test_step:: Bogus_Compile_KeyManagement")
         rt.assert_contains_substring(
             self.cmp, "Description: Ensures generated key management sources compile without errors."

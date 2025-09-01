@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Tests verifying header formatting, title/section underlines, and tag lines."""
+
 import unittest
 
 try:
@@ -14,16 +16,21 @@ import run_test as rt
 
 
 class TestHeadersAndFormatting(UnifiedTestCase):
+    """Formatting rules: commas, indentation, titles, sections, and tags."""
+
     def test_header_commas_present(self) -> None:
+        """Group headers use comma+space separators in :tests: values."""
         rt.assert_regex(self.cmp, r"^\s*:tests: .*?, ")
         rt.assert_regex(self.gen, r"^\s*:tests: .*?, ")
         rt.assert_regex(self.val, r"^\s*:tests: .*?, ")
 
     def test_validator_header_continuation_indent(self) -> None:
+        """Validator file shows the 11 and 14 space continuation indents."""
         rt.assert_regex(self.val, r"^\s{11}\S")
         rt.assert_regex(self.val, r"^\s{14}\S")
 
     def test_title_underline(self) -> None:
+        """Second line contains 120 '=' characters under the title."""
         for p in [self.gen, self.cmp, self.val]:
             lines = rt.read_text(p).splitlines()
             if len(lines) < 2:
@@ -32,6 +39,7 @@ class TestHeadersAndFormatting(UnifiedTestCase):
                 raise rt.TestError("Expected second line to be 120 '='")
 
     def test_section_underlines(self) -> None:
+        """Section header dashes match the section title length."""
         def assert_section_underline(path, section: str) -> None:
             lines = rt.read_text(path).splitlines()
             for i, ln in enumerate(lines):
@@ -46,16 +54,19 @@ class TestHeadersAndFormatting(UnifiedTestCase):
         assert_section_underline(self.val, f"{self.component}_oAW_Validator_Tests")
 
     def test_title_lines(self) -> None:
+        """Title line text matches the expected strings per group."""
         rt.assert_title_line(self.gen, "Generator Test Specification - oAW tests")
         rt.assert_title_line(self.cmp, "Compiler Test Specification - oAW tests")
         rt.assert_title_line(self.val, "Validator Test Specification - oAW tests")
 
     def test_short_descriptions(self) -> None:
+        """Short description lines include group verb and component name."""
         rt.assert_shortdescription(self.gen, "Generate", self.component)
         rt.assert_shortdescription(self.cmp, "Compile", self.component)
         rt.assert_shortdescription(self.val, "Validate", self.component)
 
     def test_tests_lines_use_comma_space(self) -> None:
+        """All :tests: lines use comma+space; report any bad cases."""
         def assert_comma_space_only(path) -> None:
             bad = []
             for ln in rt.read_text(path).splitlines():
@@ -69,6 +80,7 @@ class TestHeadersAndFormatting(UnifiedTestCase):
         assert_comma_space_only(self.val)
 
     def test_continuation_indentation(self) -> None:
+        """Continuation indentation for multiline Description/Input/Output is correct."""
         rt.assert_regex(self.gen, r"^\s{19}It spans multiple lines to validate parsing behavior\.")
         rt.assert_regex(self.gen, r"^\s{13}Second line of input description\.")
         rt.assert_regex(self.gen, r"^\s{14}Second line of output description\.")
