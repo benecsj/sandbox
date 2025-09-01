@@ -8,7 +8,6 @@ import re
 import subprocess
 import sys
 import unittest
-from lib.utils import ensure_jinja2_installed
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -41,7 +40,6 @@ def run_generator(script_dir: Path) -> None:
     """Run the generator script located in ``script_dir`` and raise on failure."""
     script = script_dir / "oaw_to_rst.py"
     config_path = script_dir / "example" / "config.json"
-    ensure_jinja2_installed()
     subprocess.run([sys.executable, str(script), "--config", str(config_path)], check=True)
 
 

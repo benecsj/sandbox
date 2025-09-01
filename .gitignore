@@ -6,3 +6,4 @@ debug_*
 *.pyc
 **/__pycache__/
 __pycache__/
+Bogus_oAW*.rst
