@@ -15,7 +15,6 @@ except ModuleNotFoundError:
     ROOT = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(ROOT))
     import run_test as rt  # type: ignore
-from lib.utils import ensure_jinja2_installed
 
 
 class UnifiedTestCase(unittest.TestCase):
@@ -32,11 +31,6 @@ class UnifiedTestCase(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.BASE_DIR = Path(__file__).resolve().parent.parent
         cls.component, cls.test_path, cls.spec_path = rt.read_config(cls.BASE_DIR)
-        # Ensure Jinja2 is available before invoking the generator subprocess
-        try:
-            import jinja2  # noqa: F401
-        except Exception:
-            ensure_jinja2_installed()
         rt.run_generator(cls.BASE_DIR)
         # Set generated file paths for tests
         cls.toc = cls.spec_path / f"{cls.component}_component_test.rst"
@@ -101,11 +95,3 @@ class UnifiedTestCase(unittest.TestCase):
         content = self.read_text(path)
         if re.search(pattern, content, re.MULTILINE) is not None:
             raise AssertionError(f"Unexpected pattern present in {path}: {pattern}")
-
-    # Backward-compat aliases (temporary)
-    readText = read_text
-    assertExists = assert_exists
-    assertContains = assert_contains
-    assertRegexFile = assert_regex_file
-    assertNotRegexFile = assert_not_regex_file
-    # Removed testcase-specific helpers: use generic helpers above within tests instead.
