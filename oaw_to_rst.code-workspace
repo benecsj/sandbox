@@ -9,8 +9,6 @@
             "titleBar.inactiveBackground": "#330000",
             "titleBar.inactiveForeground": "#999999"
         },
-        "codex.confirmCommand": false,
-        "codex.showStatusBar": "always",
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
         "python.testing.unittestArgs": [
