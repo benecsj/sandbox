@@ -20,19 +20,19 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_header_commas_present(self) -> None:
         """Group headers use comma+space separators in :tests: values."""
-        self.assertRegexFile(self.cmp, r"^\s*:tests: .*?, ")
-        self.assertRegexFile(self.gen, r"^\s*:tests: .*?, ")
-        self.assertRegexFile(self.val, r"^\s*:tests: .*?, ")
+        self.assert_regex_file(self.cmp, r"^\s*:tests: .*?, ")
+        self.assert_regex_file(self.gen, r"^\s*:tests: .*?, ")
+        self.assert_regex_file(self.val, r"^\s*:tests: .*?, ")
 
     def test_validator_header_continuation_indent(self) -> None:
         """Validator file shows the 11 and 14 space continuation indents."""
-        self.assertRegexFile(self.val, r"^\s{11}\S")
-        self.assertRegexFile(self.val, r"^\s{14}\S")
+        self.assert_regex_file(self.val, r"^\s{11}\S")
+        self.assert_regex_file(self.val, r"^\s{14}\S")
 
     def test_title_underline(self) -> None:
         """Second line contains 120 '=' characters under the title."""
         for p in [self.gen, self.cmp, self.val]:
-            lines = self.readText(p).splitlines()
+            lines = self.read_text(p).splitlines()
             if len(lines) < 2:
                 raise AssertionError("File too short for title check")
             if set(lines[1]) != {"="} or len(lines[1]) != 120:
@@ -42,7 +42,7 @@ class TestHeadersAndFormatting(UnifiedTestCase):
         """Section header dashes match the section title length."""
 
         def assert_section_underline(path, section: str) -> None:
-            lines = self.readText(path).splitlines()
+            lines = self.read_text(path).splitlines()
             for i, ln in enumerate(lines):
                 if ln.strip() == section:
                     if (
@@ -60,22 +60,22 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_title_lines(self) -> None:
         """Title line text matches the expected strings per group."""
-        self.assertTitleLine(self.gen, "Generator Test Specification - oAW tests")
-        self.assertTitleLine(self.cmp, "Compiler Test Specification - oAW tests")
-        self.assertTitleLine(self.val, "Validator Test Specification - oAW tests")
+        self.assert_title_line(self.gen, "Generator Test Specification - oAW tests")
+        self.assert_title_line(self.cmp, "Compiler Test Specification - oAW tests")
+        self.assert_title_line(self.val, "Validator Test Specification - oAW tests")
 
     def test_short_descriptions(self) -> None:
         """Short description lines include group verb and component name."""
-        self.assertShortDescription(self.gen, "Generate", self.component)
-        self.assertShortDescription(self.cmp, "Compile", self.component)
-        self.assertShortDescription(self.val, "Validate", self.component)
+        self.assert_short_description(self.gen, "Generate", self.component)
+        self.assert_short_description(self.cmp, "Compile", self.component)
+        self.assert_short_description(self.val, "Validate", self.component)
 
     def test_tests_lines_use_comma_space(self) -> None:
         """All :tests: lines use comma+space; report any bad cases."""
 
         def assert_comma_space_only(path) -> None:
             bad = []
-            for ln in self.readText(path).splitlines():
+            for ln in self.read_text(path).splitlines():
                 if ln.strip().startswith(":tests:") and __import__("re").search(r",\S", ln):
                     bad.append(ln)
             if bad:
@@ -87,9 +87,9 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_continuation_indentation(self) -> None:
         """Continuation indentation for multiline Description/Input/Output is correct."""
-        self.assertRegexFile(self.gen, r"^\s{19}It spans multiple lines to validate parsing behavior\.")
-        self.assertRegexFile(self.gen, r"^\s{13}Second line of input description\.")
-        self.assertRegexFile(self.gen, r"^\s{14}Second line of output description\.")
+        self.assert_regex_file(self.gen, r"^\s{19}It spans multiple lines to validate parsing behavior\.")
+        self.assert_regex_file(self.gen, r"^\s{13}Second line of input description\.")
+        self.assert_regex_file(self.gen, r"^\s{14}Second line of output description\.")
 
 
 if __name__ == "__main__":

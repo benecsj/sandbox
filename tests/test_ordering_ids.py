@@ -20,26 +20,26 @@ class TestOrderingAndIds(UnifiedTestCase):
 
     def test_deterministic_tag_order(self) -> None:
         """Aggregated group tags are rendered in deterministic order."""
-        self.assertContains(
+        self.assert_contains(
             self.cmp,
             ":tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-6001, BSW_SEC_ModulesHere_Bogus-8001",
         )
-        self.assertContains(
+        self.assert_contains(
             self.gen,
             ":tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001",
         )
 
     def test_group_ids_present(self) -> None:
         """Group-level :id: fields exist for each generated file."""
-        self.assertRegexFile(self.gen, rf"^\s*:id: TS_{self.component}_oAW_Generator_Tests$")
-        self.assertRegexFile(self.cmp, rf"^\s*:id: TS_{self.component}_oAW_Compiler_Tests$")
-        self.assertRegexFile(self.val, rf"^\s*:id: TS_{self.component}_oAW_Validator_Tests$")
+        self.assert_regex_file(self.gen, rf"^\s*:id: TS_{self.component}_oAW_Generator_Tests$")
+        self.assert_regex_file(self.cmp, rf"^\s*:id: TS_{self.component}_oAW_Compiler_Tests$")
+        self.assert_regex_file(self.val, rf"^\s*:id: TS_{self.component}_oAW_Validator_Tests$")
 
     def test_id_sequences(self) -> None:
         """Per-file test steps have sequential 4-digit IDs starting at 0001."""
 
         def assert_id_sequence(path, group: str) -> None:
-            content = self.readText(path)
+            content = self.read_text(path)
             ids = re.findall(rf":id: TSS_{self.component}_oAW_{group}_Tests_(\d{{4}})", content)
             if not ids:
                 raise AssertionError("No step IDs found")
@@ -53,15 +53,15 @@ class TestOrderingAndIds(UnifiedTestCase):
 
     def test_group_header_tag_sets(self) -> None:
         """Aggregated group tag sets are unique, sorted, and of expected size."""
-        self.assertGroupHeaderTokenSet(self.gen, 4)
-        self.assertGroupHeaderTokenSet(self.cmp, 3)
-        self.assertGroupHeaderTokenSet(self.val, 24)
+        self.assert_group_header_token_set(self.gen, 4)
+        self.assert_group_header_token_set(self.cmp, 3)
+        self.assert_group_header_token_set(self.val, 24)
 
     def test_step_block_counts(self) -> None:
         """The expected number of step blocks are present per group file."""
-        self.assertStepBlockCount(self.gen, 6)
-        self.assertStepBlockCount(self.cmp, 4)
-        self.assertStepBlockCount(self.val, 4)
+        self.assert_step_block_count(self.gen, 6)
+        self.assert_step_block_count(self.cmp, 4)
+        self.assert_step_block_count(self.val, 4)
 
 
 if __name__ == "__main__":
