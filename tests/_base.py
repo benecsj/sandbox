@@ -8,17 +8,18 @@ import re
 import subprocess
 import sys
 import unittest
+from lib.utils import ensure_jinja2_installed
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def read_config(base_dir: Path) -> tuple[str, Path, Path]:
-    """Load component, test and spec paths from config/config.json under base_dir.
+    """Load component, test and spec paths from tests/config.json under base_dir.
 
     Converts relative paths (in the JSON) into absolute paths using the
     directory of the config file as the base.
     """
-    config_path = base_dir / "config" / "config.json"
+    config_path = base_dir / "tests" / "config.json"
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     component = raw["component"]
     cfg_dir = config_path.parent
@@ -39,7 +40,9 @@ def read_text(path: Path) -> str:
 def run_generator(script_dir: Path) -> None:
     """Run the generator script located in ``script_dir`` and raise on failure."""
     script = script_dir / "oaw_to_rst.py"
-    subprocess.run([sys.executable, str(script)], check=True)
+    config_path = script_dir / "tests" / "config.json"
+    ensure_jinja2_installed()
+    subprocess.run([sys.executable, str(script), "--config", str(config_path)], check=True)
 
 
 class UnifiedTestCase(unittest.TestCase):
@@ -76,8 +79,9 @@ class UnifiedTestCase(unittest.TestCase):
         Note: case_id is accepted for compatibility but not used in this project.
         """
         script = self.BASE_DIR / "oaw_to_rst.py"
+        config_path = self.BASE_DIR / "tests" / "config.json"
         proc = subprocess.run(
-            [sys.executable, str(script)],
+            [sys.executable, str(script), "--config", str(config_path)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
