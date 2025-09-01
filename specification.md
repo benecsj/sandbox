@@ -47,7 +47,7 @@ Precedence: CLI overrides > values in `config.json`.
    - Delete any files starting with `<Component>_oAW_` and ending with `.rst` (exclude the TOC file itself).
    - Open the TOC RST and remove any line starting with `<Component>_oAW_`.
    - Append/insert link entries (one per group) for newly generated group RST files.
-8) Parse headers of each `.tsc` file to extract `Description`, `Input`, `Output`, and `Requirements` (list of tags). On parse error or missing fields, log error and exit with non-zero status.
+8) Parse headers of each `.tsc` file to extract `DESCRIPTION`, `INPUT`, `OUTPUT`, and `REQUIREMENTS` (list of tags). On parse error or missing fields, log error and exit with non-zero status.
 9) For each group, generate a single Group RST containing:
    - A section header.
    - A `.. sw_test::` block with aggregated unique tags across the group (comma-separated; wrap at 120 chars with 11-space continuation indent).
@@ -107,19 +107,19 @@ Precedence: CLI overrides > values in `config.json`.
 - The TOC update should be idempotent due to prior cleanup.
 
 6.9 Parsing `.tsc` Headers
-- The header starts at the beginning of the `.tsc` file and consists of lines prefixed by `// ` in the following structure:
-  - `// Description`
+- The header starts at the beginning of the `.tsc` file and consists of lines prefixed by `// ` in the following structure (attribute keys must be uppercase):
+  - `// DESCRIPTION`
   - one or more lines of free text (each starting with `//`)
-  - `// Input`
+  - `// INPUT`
   - one or more lines of free text (each starting with `//`)
-  - `// Output`
+  - `// OUTPUT`
   - one or more lines of free text (each starting with `//`)
-  - `// Requirements`
+  - `// REQUIREMENTS`
   - one or more lines of tags separated by commas and/or whitespace (each starting with `//`)
   - a required empty line after the header block (blank or not starting with `//`).
 - Parsing rules:
   - Accept `//` followed by optional single space before content.
-  - Section headers are matched case-insensitively: `Description`, `Input`, `Output`, `Requirements`.
+  - Section headers are matched case-insensitively for backward compatibility, but canonical form is uppercase: `DESCRIPTION`, `INPUT`, `OUTPUT`, `REQUIREMENTS`.
   - Accumulate multi-line text for `Description`, `Input`, `Output` preserving paragraph line breaks.
   - For `Requirements`, combine all lines, replace commas with spaces, split on whitespace, trim each token, drop empties, deduplicate preserving first occurrence.
   - Stop parsing at the first empty or non-comment line following the `Requirements` content.

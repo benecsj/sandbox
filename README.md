@@ -51,7 +51,7 @@ python3 oaw_to_rst.py --component Crypto --test_path ../tests --spec_path ../doc
 6. Finds `<component>_component_test.rst` in `spec_path`.
 7. Deletes previously generated `<Component>_oAW_*.rst` in the same directory.
 8. Removes lines starting with `<Component>_oAW_` from the TOC file, then appends new group links.
-9. Parses `.tsc` headers for Description, Input, Output, Requirements.
+9. Parses `.tsc` headers for DESCRIPTION, INPUT, OUTPUT, REQUIREMENTS.
 10. Generates one group RST per group with `.. sw_test::` and per-file `.. sw_test_step::` blocks. `.. sw_test_step::` uses file names without extension.
 11. When all headers are invalid/missing, oaw to rst action is skipped (for legacy components)
 
@@ -66,30 +66,30 @@ Group name normalization for filenames and titles:
 - `Generate`→`Generator`, `Compile`→`Compiler`, `Validate`→`Validator`.
 
 #### Test file (.tsc) header format
-This script expect a specific header to be present in all .tsc header files.
-  - `// Description`
+This script expect a specific header to be present in all .tsc header files with uppercase attribute keys.
+  - `// DESCRIPTION`
   - one or more lines of free text (each starting with `//`)
-  - `// Input`
+  - `// INPUT`
   - one or more lines of free text (each starting with `//`)
-  - `// Output`
+  - `// OUTPUT`
   - one or more lines of free text (each starting with `//`)
-  - `// Requirements`
+  - `// REQUIREMENTS`
   - one or more lines of tags separated by commas and/or whitespace (each starting with `//`)
   - a required empty line after the header block (blank or not starting with `//`).
 
 *Important: Always leave an empty line after the last tags line**
 
 <pre>
-// Description
+// DESCRIPTION
 // Some description about the test
 // Even more lines can be here
-// Input
+// INPUT
 // Some description/summary about the configuration
 // Even more lines can be here
-// Output
+// OUTPUT
 // Some description/summary of the expected output
 // Even more lines can be here
-// Requirements
+// REQUIREMENTS
 // TAG_1, TAG2, TAG3,
 // TAG_4
 
