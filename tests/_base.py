@@ -1,8 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 import unittest
-import run_test as rt
+try:
+    import run_test as rt
+except ModuleNotFoundError:
+    # Ensure project root is on sys.path for direct test execution contexts
+    ROOT = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(ROOT))
+    import run_test as rt  # type: ignore
 from lib.utils import ensure_jinja2_installed
 
 
@@ -17,6 +25,36 @@ class UnifiedTestCase(unittest.TestCase):
         except Exception:
             ensure_jinja2_installed()
         rt.run_generator(cls.BASE_DIR)
+
+    # --- Convenience CLI helpers to match requested interface ---
+    class CliResult:
+        def __init__(self, exit_code: int, stdout: str, stderr: str) -> None:
+            self.exit_code = exit_code
+            self.stdout = stdout
+            self.stderr = stderr
+
+    def run_test(self, case_id: str) -> "UnifiedTestCase.CliResult":  # noqa: D401
+        """Run the generator as a CLI invocation and return captured result.
+
+        Note: case_id is accepted for compatibility but not used in this project.
+        """
+        script = self.BASE_DIR / "oaw_to_rst.py"
+        proc = subprocess.run(
+            [sys.executable, str(script)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        return UnifiedTestCase.CliResult(proc.returncode, proc.stdout, proc.stderr)
+
+    def validate_execution_success(self, result: "UnifiedTestCase.CliResult") -> None:
+        if result.exit_code != 0:
+            raise AssertionError(f"CLI exited with {result.exit_code}: {result.stderr[:200]}")
+
+    def validate_test_output(self, result: "UnifiedTestCase.CliResult") -> None:
+        # Basic sanity: generated files exist
+        for p in [self.toc, self.gen, self.cmp, self.val]:
+            rt.assert_exists(p)
 
         cls.toc = cls.spec_path / f"{cls.component}_component_test.rst"
         cls.gen = cls.spec_path / f"{cls.component}_oAW_Generator_Tests.rst"
