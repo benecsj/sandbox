@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 
     sys.path.insert(0, os.path.dirname(__file__))
     from _base import UnifiedTestCase
-import run_test as rt
+from typing import List
 
 
 class TestFilesAndTOC(UnifiedTestCase):
@@ -21,17 +21,17 @@ class TestFilesAndTOC(UnifiedTestCase):
     def test_files_exist(self) -> None:
         """All expected RST files are created by the generator."""
         for p in [self.toc, self.gen, self.cmp, self.val]:
-            rt.assert_exists(p)
+            self.assertExists(p)
 
     def test_toc_links_present(self) -> None:
         """TOC contains links to all generated group files exactly once."""
-        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Generator_Tests.rst")
-        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Compiler_Tests.rst")
-        rt.assert_contains_substring(self.toc, f"{self.component}_oAW_Validator_Tests.rst")
+        self.assertContains(self.toc, f"{self.component}_oAW_Generator_Tests.rst")
+        self.assertContains(self.toc, f"{self.component}_oAW_Compiler_Tests.rst")
+        self.assertContains(self.toc, f"{self.component}_oAW_Validator_Tests.rst")
 
     def test_toc_unique_links(self) -> None:
         """TOC references for each file are unique (no duplicates)."""
-        toc_text = rt.read_text(self.toc)
+        toc_text = self.readText(self.toc)
         for fname in [
             f"{self.component}_oAW_Generator_Tests.rst",
             f"{self.component}_oAW_Compiler_Tests.rst",
@@ -43,7 +43,7 @@ class TestFilesAndTOC(UnifiedTestCase):
 
     def test_toc_order(self) -> None:
         """TOC entries appear in deterministic order."""
-        rt.assert_toc_order(
+        self.assertTocOrder(
             self.toc,
             [
                 f"{self.component}_oAW_Compiler_Tests.rst",

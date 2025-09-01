@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import subprocess
 import sys
 import unittest
@@ -73,19 +74,99 @@ class UnifiedTestCase(unittest.TestCase):
         for p in [self.toc, self.gen, self.cmp, self.val]:
             rt.assert_exists(p)
 
-    # Convenience wrappers mirroring harness helpers
-    def assertExists(self, path: Path) -> None:  # noqa: N802 (keep unittest-style name)
-        """Wrapper for rt.assert_exists to match unittest style."""
-        rt.assert_exists(path)
+    # Convenience helpers and assertions (CamelCase naming)
+    def readText(self, path: Path) -> str:  # noqa: N802
+        """Read a UTF-8 text file and return its contents."""
+        return path.read_text(encoding="utf-8")
+
+    def assertExists(self, path: Path) -> None:  # noqa: N802
+        """Assert that the given path exists."""
+        if not path.exists():
+            raise AssertionError(f"Expected file does not exist: {path}")
 
     def assertContains(self, path: Path, substring: str) -> None:  # noqa: N802
-        """Wrapper for rt.assert_contains_substring to match unittest style."""
-        rt.assert_contains_substring(path, substring)
+        """Assert that ``substring`` exists within the file at ``path``."""
+        content = self.readText(path)
+        if substring not in content:
+            raise AssertionError(f"Expected substring not found in {path}: {substring}")
 
     def assertRegexFile(self, path: Path, pattern: str) -> None:  # noqa: N802
-        """Wrapper for rt.assert_regex to match unittest style."""
-        rt.assert_regex(path, pattern)
+        """Assert that a regex ``pattern`` matches the file content at least once."""
+        content = self.readText(path)
+        if re.search(pattern, content, re.MULTILINE) is None:
+            raise AssertionError(f"Pattern not found in {path}: {pattern}")
 
     def assertNotRegexFile(self, path: Path, pattern: str) -> None:  # noqa: N802
-        """Wrapper for rt.assert_not_regex to match unittest style."""
-        rt.assert_not_regex(path, pattern)
+        """Assert that a regex ``pattern`` does NOT match the file content."""
+        content = self.readText(path)
+        if re.search(pattern, content, re.MULTILINE) is not None:
+            raise AssertionError(f"Unexpected pattern present in {path}: {pattern}")
+
+    def _extractGroupHeaderTests(self, path: Path) -> list[str]:  # noqa: N802
+        """Extract tokens from the group header ``:tests:`` lines in a generated RST."""
+        lines = self.readText(path).splitlines()
+        tokens: list[str] = []
+        collecting = False
+        for ln in lines:
+            if not collecting and ln.strip().startswith(":tests:"):
+                content = ln.split(":tests:", 1)[1]
+                collecting = True
+                segment = content.strip()
+                if segment:
+                    tokens.append(segment)
+                continue
+            if collecting:
+                if ln.startswith("           ") and ln.strip():  # 11 spaces continuation
+                    tokens.append(ln.strip())
+                else:
+                    break
+        text = " ".join(tokens)
+        parts = [p.strip() for p in text.replace(",", " ").split() if p.strip()]
+        return parts
+
+    def assertGroupHeaderTokenSet(self, path: Path, expected_count: int) -> None:  # noqa: N802
+        """Assert group header tokens are unique, sorted, and match expected count."""
+        tokens = self._extractGroupHeaderTests(path)
+        unique = list(dict.fromkeys(tokens))
+        is_sorted = tokens == sorted(tokens)
+        if not ((len(tokens) == expected_count) and (len(unique) == len(tokens)) and is_sorted):
+            raise AssertionError(
+                "Count/unique/sort mismatch: "
+                f"count={len(tokens)} expected={expected_count} "
+                f"unique={len(unique)} sorted={is_sorted} tokens={tokens[:10]}..."
+            )
+
+    def _countStepBlocks(self, path: Path) -> int:  # noqa: N802
+        """Count occurrences of ``.. sw_test_step::`` blocks in a file."""
+        return sum(1 for ln in self.readText(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
+
+    def assertStepBlockCount(self, path: Path, expected: int) -> None:  # noqa: N802
+        """Assert the number of step blocks in ``path`` equals ``expected``."""
+        count = self._countStepBlocks(path)
+        if count != expected:
+            raise AssertionError(f"Expected {expected} step blocks, found {count}")
+
+    def assertTitleLine(self, path: Path, expected_title: str) -> None:  # noqa: N802
+        """Assert the first line of the file equals ``expected_title``."""
+        lines = self.readText(path).splitlines()
+        first = lines[0] if lines else ""
+        if first != expected_title:
+            raise AssertionError(f"Expected first line '{expected_title}', got '{first}'")
+
+    def assertShortDescription(self, path: Path, group_word: str, component: str) -> None:  # noqa: N802
+        """Assert the group short description line contains the expected text."""
+        expected = f":tst_shortdescription: Tests for successful {group_word} of {component}"
+        self.assertContains(path, expected)
+
+    def assertTocOrder(self, toc_path: Path, files_in_order: list[str]) -> None:  # noqa: N802
+        """Assert filenames appear in-order in the TOC file content."""
+        content = self.readText(toc_path)
+        positions = [content.find(name) for name in files_in_order]
+        if not (all(pos >= 0 for pos in positions) and positions == sorted(positions)):
+            raise AssertionError(f"Positions not in order: {positions}")
+
+    def assertTodoCount(self, path: Path, expected: int) -> None:  # noqa: N802
+        """Assert the number of TODO markers in ``path`` equals ``expected``."""
+        count = self.readText(path).count("TODO:Update")
+        if count != expected:
+            raise AssertionError(f"Expected {expected} TODO lines, found {count}")
