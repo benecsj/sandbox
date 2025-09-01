@@ -1,9 +1,12 @@
+"""Unit testing base class and utilities for the oAW to reStructuredText generator."""
+
 from __future__ import annotations
 
 from pathlib import Path
 import subprocess
 import sys
 import unittest
+
 try:
     import run_test as rt
 except ModuleNotFoundError:
@@ -15,6 +18,8 @@ from lib.utils import ensure_jinja2_installed
 
 
 class UnifiedTestCase(unittest.TestCase):
+    """Base class for all test cases, handling setup and common paths."""
+
     def setUp(self) -> None:
         # Mirror class attributes on the instance for environments relying on instance lookup
         cls = type(self)
@@ -70,14 +75,17 @@ class UnifiedTestCase(unittest.TestCase):
 
     # Convenience wrappers mirroring harness helpers
     def assertExists(self, path: Path) -> None:  # noqa: N802 (keep unittest-style name)
+        """Wrapper for rt.assert_exists to match unittest style."""
         rt.assert_exists(path)
 
     def assertContains(self, path: Path, substring: str) -> None:  # noqa: N802
+        """Wrapper for rt.assert_contains_substring to match unittest style."""
         rt.assert_contains_substring(path, substring)
 
     def assertRegexFile(self, path: Path, pattern: str) -> None:  # noqa: N802
+        """Wrapper for rt.assert_regex to match unittest style."""
         rt.assert_regex(path, pattern)
 
     def assertNotRegexFile(self, path: Path, pattern: str) -> None:  # noqa: N802
+        """Wrapper for rt.assert_not_regex to match unittest style."""
         rt.assert_not_regex(path, pattern)
-

@@ -1,6 +1,7 @@
+"""Tests verifying header formatting, title/section underlines, and tag lines."""
+
 from __future__ import annotations
 
-"""Tests verifying header formatting, title/section underlines, and tag lines."""
 
 import unittest
 
@@ -40,11 +41,16 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_section_underlines(self) -> None:
         """Section header dashes match the section title length."""
+
         def assert_section_underline(path, section: str) -> None:
             lines = rt.read_text(path).splitlines()
             for i, ln in enumerate(lines):
                 if ln.strip() == section:
-                    if i + 1 < len(lines) and set(lines[i + 1]) == {"-"} and len(lines[i + 1]) == len(section):
+                    if (
+                        i + 1 < len(lines)
+                        and set(lines[i + 1]) == {"-"}
+                        and len(lines[i + 1]) == len(section)
+                    ):
                         return
                     raise rt.TestError("Dash underline length mismatch")
             raise rt.TestError("Section header not found")
@@ -67,6 +73,7 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_tests_lines_use_comma_space(self) -> None:
         """All :tests: lines use comma+space; report any bad cases."""
+
         def assert_comma_space_only(path) -> None:
             bad = []
             for ln in rt.read_text(path).splitlines():
@@ -88,4 +95,3 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

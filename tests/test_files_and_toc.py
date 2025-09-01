@@ -1,13 +1,12 @@
-from __future__ import annotations
-
 """Tests verifying generated files exist and TOC content/order is correct."""
 
-from pathlib import Path
+from __future__ import annotations
+
 import unittest
 
 try:
     from tests._base import UnifiedTestCase
-except ModuleNotFoundError:  # Fallback when imported as top-level module
+except ModuleNotFoundError:
     import os
     import sys
 
@@ -56,4 +55,3 @@ class TestFilesAndTOC(UnifiedTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

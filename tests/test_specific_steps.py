@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Tests asserting specific step content within generated group files."""
+
+from __future__ import annotations
 
 import unittest
 
@@ -36,7 +36,8 @@ class TestSpecificStepContents(UnifiedTestCase):
         """Specific steps contain expected text snippets across groups."""
         rt.assert_contains_substring(self.cmp, ".. sw_test_step:: Bogus_Compile_KeyManagement")
         rt.assert_contains_substring(
-            self.cmp, "Description: Ensures generated key management sources compile without errors."
+            self.cmp,
+            "Description: Ensures generated key management sources compile without errors.",
         )
         rt.assert_contains_substring(self.gen, ".. sw_test_step:: Bogus_Generate_Primitives")
         rt.assert_contains_substring(
@@ -48,4 +49,3 @@ class TestSpecificStepContents(UnifiedTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

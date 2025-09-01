@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Tests covering TODO placeholder emission for empty headers."""
+
+from __future__ import annotations
 
 import unittest
 
@@ -44,4 +44,3 @@ class TestPlaceholderAndTodos(UnifiedTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import sys
+import unittest
 from pathlib import Path
 from typing import List
 
@@ -23,8 +24,16 @@ def read_config(base_dir: Path) -> tuple[str, Path, Path]:
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     component = raw["component"]
     cfg_dir = config_path.parent
-    test_path = Path(raw["test_path"]) if Path(raw["test_path"]).is_absolute() else (cfg_dir / raw["test_path"]).resolve()
-    spec_path = Path(raw["spec_path"]) if Path(raw["spec_path"]).is_absolute() else (cfg_dir / raw["spec_path"]).resolve()
+    test_path = (
+        Path(raw["test_path"])
+        if Path(raw["test_path"]).is_absolute()
+        else (cfg_dir / raw["test_path"]).resolve()
+    )
+    spec_path = (
+        Path(raw["spec_path"])
+        if Path(raw["spec_path"]).is_absolute()
+        else (cfg_dir / raw["spec_path"]).resolve()
+    )
     return component, test_path, spec_path
 
 
@@ -109,7 +118,9 @@ def assert_group_header_token_set(path: Path, expected_count: int) -> None:
 
 def count_step_blocks(path: Path) -> int:
     """Count occurrences of ``.. sw_test_step::`` blocks in a file."""
-    return sum(1 for ln in read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
+    return sum(
+        1 for ln in read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: ")
+    )
 
 
 def assert_step_block_count(path: Path, expected: int) -> None:
@@ -151,7 +162,6 @@ def assert_todo_count(path: Path, expected: int) -> None:
 def main() -> int:
     """Entry point: run unittest discovery under the ``tests`` package."""
     # Delegate to unittest discovery so simplified tests can run without CHECKS.
-    import unittest
 
     # Ensure we can import as module name 'run_test' consistently
     sys.modules.setdefault("run_test", sys.modules[__name__])
@@ -166,4 +176,3 @@ if __name__ == "__main__":
     # Ensure importing this script as "run_test" reuses the same module instance
     sys.modules.setdefault("run_test", sys.modules[__name__])
     sys.exit(main())
-

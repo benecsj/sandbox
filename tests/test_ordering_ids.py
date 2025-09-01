@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Tests covering deterministic ordering and sequential ID generation."""
+
+from __future__ import annotations
 
 import re
 import unittest
@@ -38,6 +38,7 @@ class TestOrderingAndIds(UnifiedTestCase):
 
     def test_id_sequences(self) -> None:
         """Per-file test steps have sequential 4-digit IDs starting at 0001."""
+
         def assert_id_sequence(path, group: str) -> None:
             content = rt.read_text(path)
             ids = re.findall(rf":id: TSS_{self.component}_oAW_{group}_Tests_(\d{{4}})", content)
@@ -66,4 +67,3 @@ class TestOrderingAndIds(UnifiedTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
