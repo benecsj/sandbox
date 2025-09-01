@@ -8,38 +8,15 @@ import unittest
 from pathlib import Path
 
 
-def read_config(base_dir: Path) -> tuple[str, Path, Path]:
-    """Load component, test and spec paths from config/config.json under base_dir.
+try:
+    # Reuse functions from tests._base so a single source of truth exists
+    from tests._base import read_config, read_text, run_generator  # type: ignore
+except ModuleNotFoundError:
+    # Allow running when tests not importable as a package
+    import os
 
-    Converts relative paths (in the JSON) into absolute paths using the
-    directory of the config file as the base.
-    """
-    config_path = base_dir / "config" / "config.json"
-    raw = json.loads(config_path.read_text(encoding="utf-8"))
-    component = raw["component"]
-    cfg_dir = config_path.parent
-    test_path = (
-        Path(raw["test_path"])
-        if Path(raw["test_path"]).is_absolute()
-        else (cfg_dir / raw["test_path"]).resolve()
-    )
-    spec_path = (
-        Path(raw["spec_path"])
-        if Path(raw["spec_path"]).is_absolute()
-        else (cfg_dir / raw["spec_path"]).resolve()
-    )
-    return component, test_path, spec_path
-
-
-def read_text(path: Path) -> str:
-    """Read a UTF-8 text file and return its contents."""
-    return path.read_text(encoding="utf-8")
-
-
-def run_generator(script_dir: Path) -> None:
-    """Run the generator script located in ``script_dir`` and raise on failure."""
-    script = script_dir / "oaw_to_rst.py"
-    subprocess.run([sys.executable, str(script)], check=True)
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "tests"))
+    from _base import read_config, read_text, run_generator  # type: ignore
 
 
 def main() -> int:
