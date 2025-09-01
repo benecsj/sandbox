@@ -25,7 +25,7 @@ from lib.file_generator import (
     append_group_links_to_toc,
     generate_group_rst,
 )
-from lib.utils import print_final_status_banner, has_errors
+from lib.utils import print_final_status_banner, has_errors, print_skipped_banner
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -46,6 +46,16 @@ def main() -> int:
 
     tsc_file_groups = group_tsc_files_by_group(config.component, tsc_files)
     parsed_groups = parse_all_headers(tsc_file_groups)
+
+    # Special handling: if all .tsc files failed header validation, skip processing
+    total_files = sum(len(files) for files in tsc_file_groups.values())
+    total_parsed = sum(len(items) for items in parsed_groups.values())
+    if total_files > 0 and total_parsed == 0:
+        print(
+            "Component's tsc files not using the expected header formatting. Skipping oaw to rst processing."
+        )
+        print_skipped_banner()
+        return EXIT_SUCCESS
 
     # If any .tsc parsing/grouping errors were collected, report and stop
     if has_errors():

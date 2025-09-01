@@ -44,6 +44,14 @@ def print_final_status_banner() -> None:
         )
 
 
+def print_skipped_banner() -> None:
+    """Display a yellow banner indicating the run was skipped."""
+    _print_banner(
+        "/--------------------\\\n| OAW TO RST SKIPPED |\n\\--------------------/",
+        YELLOW,
+    )
+
+
 def report_error(file: Path, line: int, message: str) -> None:
     """Log a fatal error, show the final banner, and exit."""
     global HAS_ERRORS
