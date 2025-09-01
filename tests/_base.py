@@ -15,6 +15,13 @@ from lib.utils import ensure_jinja2_installed
 
 
 class UnifiedTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        # Mirror class attributes on the instance for environments relying on instance lookup
+        cls = type(self)
+        for name in ("BASE_DIR", "component", "test_path", "spec_path", "toc", "gen", "cmp", "val"):
+            if hasattr(cls, name):
+                setattr(self, name, getattr(cls, name))
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.BASE_DIR = Path(__file__).resolve().parent.parent
