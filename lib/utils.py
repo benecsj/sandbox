@@ -1,9 +1,8 @@
-"""Utility helpers for status banners and dependency management."""
+"""Utility helpers for status banners."""
 
 from __future__ import annotations
 
 from pathlib import Path
-import subprocess
 import sys
 
 
@@ -85,18 +84,4 @@ def report_warning(file: Path, line: int, message: str) -> None:
     print(f"{file}:{line}: (WARNING) {message}", file=sys.stderr)
 
 
-def ensure_jinja2_installed() -> None:
-    """Verify that ``Jinja2`` is available; exit with an error if not.
-
-    This tool no longer installs dependencies at runtime. Ensure you have
-    installed requirements (e.g., `pip install -r requirements.txt`).
-    """
-    try:
-        import jinja2  # noqa: F401
-    except Exception:
-        from pathlib import Path as _P
-        report_error(
-            _P(__file__),
-            1,
-            "Missing dependency 'Jinja2'. Please install with: pip install -r requirements.txt",
-        )
+# ensure_jinja2_installed has been removed; dependencies must be preinstalled.

@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Tuple
 from textwrap import TextWrapper
-from .utils import report_error, report_warning, ensure_jinja2_installed
+from .utils import report_error, report_warning
 from .file_handler import TscHeader
 
 
@@ -214,7 +214,6 @@ def generate_group_rst(
         )
 
     # Prepare template environment
-    ensure_jinja2_installed()
     from jinja2 import Environment, FileSystemLoader
 
     env = Environment(
