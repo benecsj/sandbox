@@ -4,9 +4,8 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 
 #### Requirements
 - Python 3.10+
-- Jinja2 (see `requirements.txt`)
-  - If Jinja2 is missing, the generator will auto-install it to the user site
-    at runtime (with a safe fallback when system packaging constraints apply).
+- Install dependencies first:
+  - `pip install -r requirements.txt` (includes Jinja2)
 
 #### Configuration
 `config/config.json` (by default; or specify via `--config`):
@@ -48,7 +47,7 @@ python3 oaw_to_rst.py --component Crypto --test_path ../tests --spec_path ../doc
 4. Recursively finds `.tsc` files under `test_path` starting with `<Component>_`.
    - If none found: logs and exits without changes.
 5. Groups tests by the second token in filename `<Component>_<Group>_...`.
-6. Finds `<component>_component_test.rst` in `spec_path`.
+6. Finds `<component>_component_test.rst` in `spec_path` (now searched recursively; if multiple, prefers the one at the root of `spec_path`, otherwise the shallowest path).
 7. Deletes previously generated `<Component>_oAW_*.rst` in the same directory.
 8. Removes lines starting with `<Component>_oAW_` from the TOC file, then appends new group links.
 9. Parses `.tsc` headers for DESCRIPTION, INPUT, OUTPUT, REQUIREMENTS.
