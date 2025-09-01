@@ -53,13 +53,7 @@ python3 oaw_to_rst.py --component Crypto --test_path ../tests --spec_path ../doc
 8. Removes lines starting with `<Component>_oAW_` from the TOC file, then appends new group links.
 9. Parses `.tsc` headers for Description, Input, Output, Requirements.
 10. Generates one group RST per group with `.. sw_test::` and per-file `.. sw_test_step::` blocks. `.. sw_test_step::` uses file names without extension.
-
-Skip behavior when all headers are invalid/missing:
-- If every discovered `.tsc` file fails header validation (missing or malformed header),
-  the tool suppresses individual errors and instead prints a single warning:
-  "Component's tsc files not using the expected header formatting. Skipping oaw to rst processing."
-  No TOC or group RST files are generated, and the run ends with a yellow "OAW TO RST SKIPPED" banner.
-  Note: files with placeholder but correctly structured headers still proceed and emit TODO lines (see below).
+11. When all headers are invalid/missing, oaw to rst action is skipped (for legacy components)
 
 Formatting specifics:
 - Tags are comma-separated and wrapped at 120 characters
