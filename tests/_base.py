@@ -102,84 +102,10 @@ class UnifiedTestCase(unittest.TestCase):
         if re.search(pattern, content, re.MULTILINE) is not None:
             raise AssertionError(f"Unexpected pattern present in {path}: {pattern}")
 
-    def _extract_group_header_tests(self, path: Path) -> list[str]:
-        """Extract tokens from the group header ``:tests:`` lines in a generated RST."""
-        lines = self.read_text(path).splitlines()
-        tokens: list[str] = []
-        collecting = False
-        for ln in lines:
-            if not collecting and ln.strip().startswith(":tests:"):
-                content = ln.split(":tests:", 1)[1]
-                collecting = True
-                segment = content.strip()
-                if segment:
-                    tokens.append(segment)
-                continue
-            if collecting:
-                if ln.startswith("           ") and ln.strip():  # 11 spaces continuation
-                    tokens.append(ln.strip())
-                else:
-                    break
-        text = " ".join(tokens)
-        parts = [p.strip() for p in text.replace(",", " ").split() if p.strip()]
-        return parts
-
-    def assert_group_header_token_set(self, path: Path, expected_count: int) -> None:
-        """Assert group header tokens are unique, sorted, and match expected count."""
-        tokens = self._extract_group_header_tests(path)
-        unique = list(dict.fromkeys(tokens))
-        is_sorted = tokens == sorted(tokens)
-        if not ((len(tokens) == expected_count) and (len(unique) == len(tokens)) and is_sorted):
-            raise AssertionError(
-                "Count/unique/sort mismatch: "
-                f"count={len(tokens)} expected={expected_count} "
-                f"unique={len(unique)} sorted={is_sorted} tokens={tokens[:10]}..."
-            )
-
-    def _count_step_blocks(self, path: Path) -> int:
-        """Count occurrences of ``.. sw_test_step::`` blocks in a file."""
-        return sum(1 for ln in self.read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
-
-    def assert_step_block_count(self, path: Path, expected: int) -> None:
-        """Assert the number of step blocks in ``path`` equals ``expected``."""
-        count = self._count_step_blocks(path)
-        if count != expected:
-            raise AssertionError(f"Expected {expected} step blocks, found {count}")
-
-    def assert_title_line(self, path: Path, expected_title: str) -> None:
-        """Assert the first line of the file equals ``expected_title``."""
-        lines = self.read_text(path).splitlines()
-        first = lines[0] if lines else ""
-        if first != expected_title:
-            raise AssertionError(f"Expected first line '{expected_title}', got '{first}'")
-
-    def assert_short_description(self, path: Path, group_word: str, component: str) -> None:
-        """Assert the group short description line contains the expected text."""
-        expected = f":tst_shortdescription: Tests for successful {group_word} of {component}"
-        self.assert_contains(path, expected)
-
-    def assert_toc_order(self, toc_path: Path, files_in_order: list[str]) -> None:
-        """Assert filenames appear in-order in the TOC file content."""
-        content = self.read_text(toc_path)
-        positions = [content.find(name) for name in files_in_order]
-        if not (all(pos >= 0 for pos in positions) and positions == sorted(positions)):
-            raise AssertionError(f"Positions not in order: {positions}")
-
-    def assert_todo_count(self, path: Path, expected: int) -> None:
-        """Assert the number of TODO markers in ``path`` equals ``expected``."""
-        count = self.read_text(path).count("TODO:Update")
-        if count != expected:
-            raise AssertionError(f"Expected {expected} TODO lines, found {count}")
-
     # Backward-compat aliases (temporary)
     readText = read_text
     assertExists = assert_exists
     assertContains = assert_contains
     assertRegexFile = assert_regex_file
     assertNotRegexFile = assert_not_regex_file
-    assertGroupHeaderTokenSet = assert_group_header_token_set
-    assertStepBlockCount = assert_step_block_count
-    assertTitleLine = assert_title_line
-    assertShortDescription = assert_short_description
-    assertTocOrder = assert_toc_order
-    assertTodoCount = assert_todo_count
+    # Removed testcase-specific helpers: use generic helpers above within tests instead.

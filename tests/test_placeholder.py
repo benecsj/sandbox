@@ -38,7 +38,9 @@ class TestPlaceholderAndTodos(UnifiedTestCase):
 
     def test_placeholder_todo_count(self) -> None:
         """Number of emitted TODO markers matches expectations."""
-        self.assert_todo_count(self.val, 4)
+        count = self.read_text(self.val).count("TODO:Update")
+        if count != 4:
+            raise AssertionError(f"Expected 4 TODO lines, found {count}")
 
 
 if __name__ == "__main__":
