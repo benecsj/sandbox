@@ -3,7 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 import unittest
 
-from tests._base import UnifiedTestCase
+try:
+    from tests._base import UnifiedTestCase
+except ModuleNotFoundError:  # Fallback when imported as top-level module
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.dirname(__file__))
+    from _base import UnifiedTestCase
 import run_test as rt
 
 
