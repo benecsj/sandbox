@@ -86,64 +86,17 @@ def report_warning(file: Path, line: int, message: str) -> None:
 
 
 def ensure_jinja2_installed() -> None:
-    """Ensure ``Jinja2`` is importable in the current process.
+    """Verify that ``Jinja2`` is available; exit with an error if not.
 
-    Performs a best-effort runtime installation to user site and updates
-    ``sys.path`` so the current interpreter can import it without restart.
+    This tool no longer installs dependencies at runtime. Ensure you have
+    installed requirements (e.g., `pip install -r requirements.txt`).
     """
     try:
         import jinja2  # noqa: F401
-        return
     except Exception:
-        pass
-
-    # Attempt installation
-    install_cmds = [
-        [sys.executable, "-m", "pip", "install", "--user", "Jinja2>=3.1,<4"],
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--break-system-packages",
-            "--user",
-            "Jinja2>=3.1,<4",
-        ],
-    ]
-    for cmd in install_cmds:
-        try:
-            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            break
-        except Exception:
-            continue
-
-    # Ensure user site and site-packages are on sys.path for this process
-    try:
-        import site  # noqa: F401
-        user_site_paths = []
-        try:
-            # Python 3.10+: returns str or list[str] depending on env
-            usp = site.getusersitepackages()
-            if isinstance(usp, str):
-                user_site_paths.append(usp)
-            elif isinstance(usp, list):
-                user_site_paths.extend(usp)
-        except Exception:
-            user_site_paths = []
-
-        # Add discovered site paths to sys.path if missing
-        for p in user_site_paths:
-            if p and p not in sys.path:
-                sys.path.append(p)
-    except Exception:
-        pass
-
-    # Invalidate import caches and try again
-    try:
-        import importlib
-
-        importlib.invalidate_caches()
-        import jinja2  # noqa: F401
-    except Exception:
-        # As a last resort, let the import fail naturally later
-        pass
+        from pathlib import Path as _P
+        report_error(
+            _P(__file__),
+            1,
+            "Missing dependency 'Jinja2'. Please install with: pip install -r requirements.txt",
+        )

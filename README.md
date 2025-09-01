@@ -4,9 +4,8 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 
 #### Requirements
 - Python 3.10+
-- Jinja2 (see `requirements.txt`)
-  - If Jinja2 is missing, the generator will auto-install it to the user site
-    at runtime (with a safe fallback when system packaging constraints apply).
+- Install dependencies first:
+  - `pip install -r requirements.txt` (includes Jinja2)
 
 #### Configuration
 `config/config.json` (by default; or specify via `--config`):
