@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from textwrap import TextWrapper
 from .utils import report_error, report_warning
 from .file_handler import TscHeader
+from jinja2 import Environment, FileSystemLoader
 
 
 def convert_group_name(group: str, group_name_mappings: Dict[str, str]) -> str:
@@ -212,9 +213,6 @@ def generate_group_rst(
                 "output_lines": output_lines,
             }
         )
-
-    # Prepare template environment
-    from jinja2 import Environment, FileSystemLoader
 
     env = Environment(
         loader=FileSystemLoader(str(template_dir)),
