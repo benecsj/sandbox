@@ -5,6 +5,8 @@ Generates reStructuredText documentation for oAW tests from `.tsc` sources.
 #### Requirements
 - Python 3.10+
 - Jinja2 (see `requirements.txt`)
+  - If Jinja2 is missing, the generator will auto-install it to the user site
+    at runtime (with a safe fallback when system packaging constraints apply).
 
 #### Configuration
 `config/config.json` (by default; or specify via `--config`):
@@ -51,6 +53,7 @@ python3 oaw_to_rst.py --component Crypto --test_path ../tests --spec_path ../doc
 8. Removes lines starting with `<Component>_oAW_` from the TOC file, then appends new group links.
 9. Parses `.tsc` headers for Description, Input, Output, Requirements.
 10. Generates one group RST per group with `.. sw_test::` and per-file `.. sw_test_step::` blocks. `.. sw_test_step::` uses file names without extension.
+11. When all headers are invalid/missing, oaw to rst action is skipped (for legacy components)
 
 Formatting specifics:
 - Tags are comma-separated and wrapped at 120 characters
@@ -94,3 +97,13 @@ This script expect a specific header to be present in all .tsc header files.
 
 #### Demo Data
 Sample files are provided under `test/` and a ready config is included. A test harness `run_test.py` validates generated output structure and formatting.
+
+#### Status banners
+- Successful run (green):
+  - "OAW TO RST WAS SUCCESSFUL"
+- Completed with warnings (yellow):
+  - "OAW TO RST FINISHED WITH WARNINGS"
+- Failed due to errors (red):
+  - "OAW TO RST FAILED"
+- Skipped run (yellow):
+  - "OAW TO RST SKIPPED" (occurs when all discovered `.tsc` files have invalid/missing headers, see skip behavior above)

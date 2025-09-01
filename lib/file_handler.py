@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 """Utilities for discovering and parsing ``.tsc`` test files."""
 
+from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
-
 from .config_handler import Config
 from .utils import report_error, collect_error
 
@@ -37,7 +35,7 @@ def discover_tsc_files(config: Config) -> List[Path]:
     for path in config.test_path.rglob("*.tsc"):
         if path.name.startswith(prefix):
             results.append(path.resolve())
-    results.sort(key=lambda p: str(p))
+    results.sort()
     for p in results:
         print(str(p))
     if not results:
@@ -63,7 +61,7 @@ def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str,
         group = parts[1]
         groups.setdefault(group, []).append(file_path)
     for group_name in groups:
-        groups[group_name].sort(key=lambda p: str(p))
+        groups[group_name].sort()
     return dict(sorted(groups.items(), key=lambda kv: kv[0]))
 
 
@@ -173,7 +171,9 @@ def parse_tsc_header(path: Path) -> TscHeader | None:
     )
 
 
-def parse_all_headers(tsc_file_groups: Dict[str, List[Path]]) -> Dict[str, List[Tuple[Path, TscHeader]]]:
+def parse_all_headers(
+    tsc_file_groups: Dict[str, List[Path]],
+) -> Dict[str, List[Tuple[Path, TscHeader]]]:
     """Parse headers for all grouped TSC files."""
 
     parsed_groups: Dict[str, List[Tuple[Path, TscHeader]]] = {}

@@ -3,19 +3,43 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import re
 import subprocess
 import sys
 import unittest
 
-try:
-    import run_test as rt
-except ModuleNotFoundError:
-    # Ensure project root is on sys.path for direct test execution contexts
-    ROOT = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(ROOT))
-    import run_test as rt  # type: ignore
-from lib.utils import ensure_jinja2_installed
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def read_config(base_dir: Path) -> tuple[str, Path, Path]:
+    """Load component, test and spec paths from config/config.json under base_dir.
+
+    Converts relative paths (in the JSON) into absolute paths using the
+    directory of the config file as the base.
+    """
+    config_path = base_dir / "config" / "config.json"
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    component = raw["component"]
+    cfg_dir = config_path.parent
+    test_path = (
+        Path(raw["test_path"]) if Path(raw["test_path"]).is_absolute() else (cfg_dir / raw["test_path"]).resolve()
+    )
+    spec_path = (
+        Path(raw["spec_path"]) if Path(raw["spec_path"]).is_absolute() else (cfg_dir / raw["spec_path"]).resolve()
+    )
+    return component, test_path, spec_path
+
+
+def read_text(path: Path) -> str:
+    """Read a UTF-8 text file and return its contents."""
+    return path.read_text(encoding="utf-8")
+
+
+def run_generator(script_dir: Path) -> None:
+    """Run the generator script located in ``script_dir`` and raise on failure."""
+    script = script_dir / "oaw_to_rst.py"
+    subprocess.run([sys.executable, str(script)], check=True)
 
 
 class UnifiedTestCase(unittest.TestCase):
@@ -31,13 +55,8 @@ class UnifiedTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.BASE_DIR = Path(__file__).resolve().parent.parent
-        cls.component, cls.test_path, cls.spec_path = rt.read_config(cls.BASE_DIR)
-        # Ensure Jinja2 is available before invoking the generator subprocess
-        try:
-            import jinja2  # noqa: F401
-        except Exception:
-            ensure_jinja2_installed()
-        rt.run_generator(cls.BASE_DIR)
+        cls.component, cls.test_path, cls.spec_path = read_config(cls.BASE_DIR)
+        run_generator(cls.BASE_DIR)
         # Set generated file paths for tests
         cls.toc = cls.spec_path / f"{cls.component}_component_test.rst"
         cls.gen = cls.spec_path / f"{cls.component}_oAW_Generator_Tests.rst"
@@ -77,7 +96,7 @@ class UnifiedTestCase(unittest.TestCase):
     # Convenience helpers and assertions (snake_case naming)
     def read_text(self, path: Path) -> str:
         """Read a UTF-8 text file and return its contents."""
-        return path.read_text(encoding="utf-8")
+        return read_text(path)
 
     def assert_exists(self, path: Path) -> None:
         """Assert that the given path exists."""
@@ -101,85 +120,3 @@ class UnifiedTestCase(unittest.TestCase):
         content = self.read_text(path)
         if re.search(pattern, content, re.MULTILINE) is not None:
             raise AssertionError(f"Unexpected pattern present in {path}: {pattern}")
-
-    def _extract_group_header_tests(self, path: Path) -> list[str]:
-        """Extract tokens from the group header ``:tests:`` lines in a generated RST."""
-        lines = self.read_text(path).splitlines()
-        tokens: list[str] = []
-        collecting = False
-        for ln in lines:
-            if not collecting and ln.strip().startswith(":tests:"):
-                content = ln.split(":tests:", 1)[1]
-                collecting = True
-                segment = content.strip()
-                if segment:
-                    tokens.append(segment)
-                continue
-            if collecting:
-                if ln.startswith("           ") and ln.strip():  # 11 spaces continuation
-                    tokens.append(ln.strip())
-                else:
-                    break
-        text = " ".join(tokens)
-        parts = [p.strip() for p in text.replace(",", " ").split() if p.strip()]
-        return parts
-
-    def assert_group_header_token_set(self, path: Path, expected_count: int) -> None:
-        """Assert group header tokens are unique, sorted, and match expected count."""
-        tokens = self._extract_group_header_tests(path)
-        unique = list(dict.fromkeys(tokens))
-        is_sorted = tokens == sorted(tokens)
-        if not ((len(tokens) == expected_count) and (len(unique) == len(tokens)) and is_sorted):
-            raise AssertionError(
-                "Count/unique/sort mismatch: "
-                f"count={len(tokens)} expected={expected_count} "
-                f"unique={len(unique)} sorted={is_sorted} tokens={tokens[:10]}..."
-            )
-
-    def _count_step_blocks(self, path: Path) -> int:
-        """Count occurrences of ``.. sw_test_step::`` blocks in a file."""
-        return sum(1 for ln in self.read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
-
-    def assert_step_block_count(self, path: Path, expected: int) -> None:
-        """Assert the number of step blocks in ``path`` equals ``expected``."""
-        count = self._count_step_blocks(path)
-        if count != expected:
-            raise AssertionError(f"Expected {expected} step blocks, found {count}")
-
-    def assert_title_line(self, path: Path, expected_title: str) -> None:
-        """Assert the first line of the file equals ``expected_title``."""
-        lines = self.read_text(path).splitlines()
-        first = lines[0] if lines else ""
-        if first != expected_title:
-            raise AssertionError(f"Expected first line '{expected_title}', got '{first}'")
-
-    def assert_short_description(self, path: Path, group_word: str, component: str) -> None:
-        """Assert the group short description line contains the expected text."""
-        expected = f":tst_shortdescription: Tests for successful {group_word} of {component}"
-        self.assert_contains(path, expected)
-
-    def assert_toc_order(self, toc_path: Path, files_in_order: list[str]) -> None:
-        """Assert filenames appear in-order in the TOC file content."""
-        content = self.read_text(toc_path)
-        positions = [content.find(name) for name in files_in_order]
-        if not (all(pos >= 0 for pos in positions) and positions == sorted(positions)):
-            raise AssertionError(f"Positions not in order: {positions}")
-
-    def assert_todo_count(self, path: Path, expected: int) -> None:
-        """Assert the number of TODO markers in ``path`` equals ``expected``."""
-        count = self.read_text(path).count("TODO:Update")
-        if count != expected:
-            raise AssertionError(f"Expected {expected} TODO lines, found {count}")
-
-    # Backward-compat aliases (temporary)
-    readText = read_text
-    assertExists = assert_exists
-    assertContains = assert_contains
-    assertRegexFile = assert_regex_file
-    assertNotRegexFile = assert_not_regex_file
-    assertGroupHeaderTokenSet = assert_group_header_token_set
-    assertStepBlockCount = assert_step_block_count
-    assertTitleLine = assert_title_line
-    assertShortDescription = assert_short_description
-    assertTocOrder = assert_toc_order
-    assertTodoCount = assert_todo_count

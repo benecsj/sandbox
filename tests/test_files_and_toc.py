@@ -42,14 +42,15 @@ class TestFilesAndTOC(UnifiedTestCase):
 
     def test_toc_order(self) -> None:
         """TOC entries appear in deterministic order."""
-        self.assert_toc_order(
-            self.toc,
-            [
-                f"{self.component}_oAW_Compiler_Tests.rst",
-                f"{self.component}_oAW_Generator_Tests.rst",
-                f"{self.component}_oAW_Validator_Tests.rst",
-            ],
-        )
+        content = self.read_text(self.toc)
+        files_in_order = [
+            f"{self.component}_oAW_Compiler_Tests.rst",
+            f"{self.component}_oAW_Generator_Tests.rst",
+            f"{self.component}_oAW_Validator_Tests.rst",
+        ]
+        positions = [content.find(name) for name in files_in_order]
+        if not (all(pos >= 0 for pos in positions) and positions == sorted(positions)):
+            raise AssertionError(f"Positions not in order: {positions}")
 
 
 if __name__ == "__main__":

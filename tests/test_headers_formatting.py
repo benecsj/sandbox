@@ -60,15 +60,27 @@ class TestHeadersAndFormatting(UnifiedTestCase):
 
     def test_title_lines(self) -> None:
         """Title line text matches the expected strings per group."""
-        self.assert_title_line(self.gen, "Generator Test Specification - oAW tests")
-        self.assert_title_line(self.cmp, "Compiler Test Specification - oAW tests")
-        self.assert_title_line(self.val, "Validator Test Specification - oAW tests")
+        def assert_title_line(path, expected_title: str) -> None:
+            lines = self.read_text(path).splitlines()
+            first = lines[0] if lines else ""
+            if first != expected_title:
+                raise AssertionError(f"Expected first line '{expected_title}', got '{first}'")
+
+        assert_title_line(self.gen, "Generator Test Specification - oAW tests")
+        assert_title_line(self.cmp, "Compiler Test Specification - oAW tests")
+        assert_title_line(self.val, "Validator Test Specification - oAW tests")
 
     def test_short_descriptions(self) -> None:
         """Short description lines include group verb and component name."""
-        self.assert_short_description(self.gen, "Generate", self.component)
-        self.assert_short_description(self.cmp, "Compile", self.component)
-        self.assert_short_description(self.val, "Validate", self.component)
+        self.assert_contains(
+            self.gen, f":tst_shortdescription: Tests for successful Generate of {self.component}"
+        )
+        self.assert_contains(
+            self.cmp, f":tst_shortdescription: Tests for successful Compile of {self.component}"
+        )
+        self.assert_contains(
+            self.val, f":tst_shortdescription: Tests for successful Validate of {self.component}"
+        )
 
     def test_tests_lines_use_comma_space(self) -> None:
         """All :tests: lines use comma+space; report any bad cases."""

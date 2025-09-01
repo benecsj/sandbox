@@ -53,15 +53,55 @@ class TestOrderingAndIds(UnifiedTestCase):
 
     def test_group_header_tag_sets(self) -> None:
         """Aggregated group tag sets are unique, sorted, and of expected size."""
-        self.assert_group_header_token_set(self.gen, 4)
-        self.assert_group_header_token_set(self.cmp, 3)
-        self.assert_group_header_token_set(self.val, 24)
+        def extract_group_header_tests(path):
+            lines = self.read_text(path).splitlines()
+            tokens = []
+            collecting = False
+            for ln in lines:
+                if not collecting and ln.strip().startswith(":tests:"):
+                    content = ln.split(":tests:", 1)[1]
+                    collecting = True
+                    segment = content.strip()
+                    if segment:
+                        tokens.append(segment)
+                    continue
+                if collecting:
+                    if ln.startswith("           ") and ln.strip():  # 11 spaces continuation
+                        tokens.append(ln.strip())
+                    else:
+                        break
+            text = " ".join(tokens)
+            parts = [p.strip() for p in text.replace(",", " ").split() if p.strip()]
+            return parts
+
+        def assert_group_header_token_set(path, expected_count):
+            tokens = extract_group_header_tests(path)
+            unique = list(dict.fromkeys(tokens))
+            is_sorted = tokens == sorted(tokens)
+            if not ((len(tokens) == expected_count) and (len(unique) == len(tokens)) and is_sorted):
+                raise AssertionError(
+                    f"Count/unique/sort mismatch: count={len(tokens)} expected={expected_count} unique={len(unique)} sorted={is_sorted}"
+                )
+
+        assert_group_header_token_set(self.gen, 4)
+        assert_group_header_token_set(self.cmp, 3)
+        assert_group_header_token_set(self.val, 24)
 
     def test_step_block_counts(self) -> None:
         """The expected number of step blocks are present per group file."""
-        self.assert_step_block_count(self.gen, 6)
-        self.assert_step_block_count(self.cmp, 4)
-        self.assert_step_block_count(self.val, 4)
+        def count_step_blocks(path):
+            return sum(
+                1 for ln in self.read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: ")
+            )
+
+        for path, expected in [
+            (self.gen, 6),
+            (self.cmp, 4),
+            (self.val, 4),
+        ]:
+            count = count_step_blocks(path)
+            if count != expected:
+                raise AssertionError(f"Expected {expected} step blocks, found {count}")
 
 
 if __name__ == "__main__":

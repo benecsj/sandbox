@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 """Generate reStructuredText files from parsed test specifications."""
 
+from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Tuple
 from textwrap import TextWrapper
-
 from .utils import report_error, report_warning, ensure_jinja2_installed
 from .file_handler import TscHeader
 
@@ -153,13 +151,9 @@ def generate_group_rst(
             header.requirements_line,
             "Missing Requirements content; emitting TODO in test specification rst file",
         )
-        return (
-            f"      :tests: TODO:Update the Requirements field in the header of {path.name}"
-        )
+        return f"      :tests: TODO:Update the Requirements field in the header of {path.name}"
 
-    def build_field_lines(
-        label: str, content: str, line_no: int, path: Path
-    ) -> List[str]:
+    def build_field_lines(label: str, content: str, line_no: int, path: Path) -> List[str]:
         if content:
             return format_multiline_field(label, content, base_indent_spaces=6)
         report_warning(
@@ -181,15 +175,9 @@ def generate_group_rst(
         counter += 1
 
         tests_line = build_tests_line(p, hdr)
-        desc_lines = build_field_lines(
-            "Description", hdr.description, hdr.desc_line, p
-        )
-        input_lines = build_field_lines(
-            "Input", hdr.input_text, hdr.input_line, p
-        )
-        output_lines = build_field_lines(
-            "Output", hdr.output_text, hdr.output_line, p
-        )
+        desc_lines = build_field_lines("Description", hdr.description, hdr.desc_line, p)
+        input_lines = build_field_lines("Input", hdr.input_text, hdr.input_line, p)
+        output_lines = build_field_lines("Output", hdr.output_text, hdr.output_line, p)
 
         steps.append(
             {
