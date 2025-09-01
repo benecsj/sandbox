@@ -32,6 +32,11 @@ class UnifiedTestCase(unittest.TestCase):
         except Exception:
             ensure_jinja2_installed()
         rt.run_generator(cls.BASE_DIR)
+        # Set generated file paths for tests
+        cls.toc = cls.spec_path / f"{cls.component}_component_test.rst"
+        cls.gen = cls.spec_path / f"{cls.component}_oAW_Generator_Tests.rst"
+        cls.cmp = cls.spec_path / f"{cls.component}_oAW_Compiler_Tests.rst"
+        cls.val = cls.spec_path / f"{cls.component}_oAW_Validator_Tests.rst"
 
     # --- Convenience CLI helpers to match requested interface ---
     class CliResult:
@@ -62,11 +67,6 @@ class UnifiedTestCase(unittest.TestCase):
         # Basic sanity: generated files exist
         for p in [self.toc, self.gen, self.cmp, self.val]:
             rt.assert_exists(p)
-
-        cls.toc = cls.spec_path / f"{cls.component}_component_test.rst"
-        cls.gen = cls.spec_path / f"{cls.component}_oAW_Generator_Tests.rst"
-        cls.cmp = cls.spec_path / f"{cls.component}_oAW_Compiler_Tests.rst"
-        cls.val = cls.spec_path / f"{cls.component}_oAW_Validator_Tests.rst"
 
     # Convenience wrappers mirroring harness helpers
     def assertExists(self, path: Path) -> None:  # noqa: N802 (keep unittest-style name)
