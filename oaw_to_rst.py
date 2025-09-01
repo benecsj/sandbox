@@ -75,7 +75,12 @@ def main() -> int:
     print("Generated test group rst files:")
     for group_name, parsed_list in parsed_groups.items():
         generate_group_rst(
-            config.component, group_name, parsed_list, toc_dir, template_dir, config.group_name_mappings
+            config.component,
+            group_name,
+            parsed_list,
+            toc_dir,
+            template_dir,
+            config.group_name_mappings,
         )
 
     # Print final banner based on warnings/errors

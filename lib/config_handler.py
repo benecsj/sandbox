@@ -1,13 +1,11 @@
-from __future__ import annotations
-
 """Configuration handling for the oAW to RST generator."""
 
+from __future__ import annotations
 import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
-
 from .utils import report_error
 
 
@@ -47,9 +45,7 @@ def _resolve_config_path(script_path: Path, config_arg: str | None) -> tuple[Pat
     script_dir = script_path.parent
     if config_arg:
         specified = Path(config_arg)
-        config_path = (
-            specified if specified.is_absolute() else (script_dir / specified).resolve()
-        )
+        config_path = specified if specified.is_absolute() else (script_dir / specified).resolve()
     else:
         config_path = script_dir / DEFAULT_CONFIG_RELATIVE_PATH
     if not config_path.exists():
@@ -64,9 +60,7 @@ def _load_raw_config(config_path: Path) -> Dict[str, object]:
         return json.load(file)
 
 
-def _normalize_group_mappings(
-    config_path: Path, raw_mappings: object
-) -> Dict[str, str]:
+def _normalize_group_mappings(config_path: Path, raw_mappings: object) -> Dict[str, str]:
     """Validate and normalize group name mappings."""
 
     if not isinstance(raw_mappings, dict) or not raw_mappings:
@@ -136,9 +130,7 @@ def load_config_with_overrides(script_path: Path) -> Config:
             "Invalid or missing 'spec_path' in configuration",
         )
 
-    group_name_mappings = _normalize_group_mappings(
-        config_path, group_name_mappings_raw
-    )
+    group_name_mappings = _normalize_group_mappings(config_path, group_name_mappings_raw)
 
     test_path = _resolve_path(config_dir, test_path_raw)
     spec_path = _resolve_path(config_dir, spec_path_raw)
@@ -154,4 +146,3 @@ def load_config_with_overrides(script_path: Path) -> Config:
         spec_path=spec_path,
         group_name_mappings=group_name_mappings,
     )
-

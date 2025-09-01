@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Utility helpers for status banners and dependency management."""
+
+from __future__ import annotations
 
 from pathlib import Path
 import subprocess
@@ -89,6 +89,7 @@ def ensure_jinja2_installed() -> None:
     """Ensure ``Jinja2`` is available, installing it on demand."""
     try:
         import jinja2  # noqa: F401
+
         return
     except Exception:
         # Attempt user-site install first; if blocked by PEP 668, override safely
