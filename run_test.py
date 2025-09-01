@@ -14,6 +14,11 @@ class TestError(AssertionError):
 
 
 def read_config(base_dir: Path) -> tuple[str, Path, Path]:
+    """Load component, test and spec paths from config/config.json under base_dir.
+
+    Converts relative paths (in the JSON) into absolute paths using the
+    directory of the config file as the base.
+    """
     config_path = base_dir / "config" / "config.json"
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     component = raw["component"]
@@ -24,38 +29,49 @@ def read_config(base_dir: Path) -> tuple[str, Path, Path]:
 
 
 def read_text(path: Path) -> str:
+    """Read a UTF-8 text file and return its contents."""
     return path.read_text(encoding="utf-8")
 
 
 def assert_contains_substring(path: Path, substring: str) -> None:
+    """Assert that ``substring`` exists within the file at ``path``."""
     content = read_text(path)
     if substring not in content:
         raise TestError(f"Expected substring not found in {path}: {substring}")
 
 
 def assert_regex(path: Path, pattern: str) -> None:
+    """Assert that a regex ``pattern`` matches the file content at least once."""
     content = read_text(path)
     if re.search(pattern, content, re.MULTILINE) is None:
         raise TestError(f"Pattern not found in {path}: {pattern}")
 
 
 def assert_not_regex(path: Path, pattern: str) -> None:
+    """Assert that a regex ``pattern`` does NOT match the file content."""
     content = read_text(path)
     if re.search(pattern, content, re.MULTILINE) is not None:
         raise TestError(f"Unexpected pattern present in {path}: {pattern}")
 
 
 def assert_exists(path: Path) -> None:
+    """Assert that the given path exists."""
     if not path.exists():
         raise TestError(f"Expected file does not exist: {path}")
 
 
 def run_generator(script_dir: Path) -> None:
+    """Run the generator script located in ``script_dir`` and raise on failure."""
     script = script_dir / "oaw_to_rst.py"
     subprocess.run([sys.executable, str(script)], check=True)
 
 
 def extract_group_header_tests(path: Path) -> List[str]:
+    """Extract tokens from the group header ``:tests:`` lines in a generated RST.
+
+    Continuation lines are recognized by the required 11-space indent.
+    Commas are normalized to spaces and tokens are split on whitespace.
+    """
     lines = read_text(path).splitlines()
     tokens: List[str] = []
     collecting = False
@@ -79,6 +95,7 @@ def extract_group_header_tests(path: Path) -> List[str]:
 
 
 def assert_group_header_token_set(path: Path, expected_count: int) -> None:
+    """Assert group header tokens are unique, sorted, and match expected count."""
     tokens = extract_group_header_tests(path)
     unique = list(dict.fromkeys(tokens))
     is_sorted = tokens == sorted(tokens)
@@ -91,16 +108,19 @@ def assert_group_header_token_set(path: Path, expected_count: int) -> None:
 
 
 def count_step_blocks(path: Path) -> int:
+    """Count occurrences of ``.. sw_test_step::`` blocks in a file."""
     return sum(1 for ln in read_text(path).splitlines() if ln.strip().startswith(".. sw_test_step:: "))
 
 
 def assert_step_block_count(path: Path, expected: int) -> None:
+    """Assert the number of step blocks in ``path`` equals ``expected``."""
     count = count_step_blocks(path)
     if count != expected:
         raise TestError(f"Expected {expected} step blocks, found {count}")
 
 
 def assert_title_line(path: Path, expected_title: str) -> None:
+    """Assert the first line of the file equals ``expected_title``."""
     lines = read_text(path).splitlines()
     first = lines[0] if lines else ""
     if first != expected_title:
@@ -108,11 +128,13 @@ def assert_title_line(path: Path, expected_title: str) -> None:
 
 
 def assert_shortdescription(path: Path, group_word: str, component: str) -> None:
+    """Assert the group short description line contains the expected text."""
     expected = f":tst_shortdescription: Tests for successful {group_word} of {component}"
     assert_contains_substring(path, expected)
 
 
 def assert_toc_order(toc_path: Path, files_in_order: List[str]) -> None:
+    """Assert filenames appear in-order in the TOC file content."""
     content = read_text(toc_path)
     positions = [content.find(name) for name in files_in_order]
     if not (all(pos >= 0 for pos in positions) and positions == sorted(positions)):
@@ -120,12 +142,14 @@ def assert_toc_order(toc_path: Path, files_in_order: List[str]) -> None:
 
 
 def assert_todo_count(path: Path, expected: int) -> None:
+    """Assert the number of TODO markers in ``path`` equals ``expected``."""
     count = read_text(path).count("TODO:Update")
     if count != expected:
         raise TestError(f"Expected {expected} TODO lines, found {count}")
 
 
 def main() -> int:
+    """Entry point: run unittest discovery under the ``tests`` package."""
     # Delegate to unittest discovery so simplified tests can run without CHECKS.
     import unittest
 
