@@ -42,7 +42,7 @@ Precedence: CLI overrides > values in `config.json`.
 4) Discover `.tsc` files under `test_path` whose basename start with `<Component>_`. Log absolute paths of all matches.
    - If no `.tsc` files are found: log "No oAW tests found for <Component>." and exit successfully (no changes).
 5) Group discovered files into `tsc_file_groups` as `{ GroupName: [absolute_file_paths...] }` where `GroupName` is the second underscore-separated token of the filename.
-6) Locate TOC RST file `<component>_component_test.rst` under `spec_path` (non-recursive search of root; optionally allow recursive search — see 9.4). If not found, log `ERROR <component>_component_test.rst not found in <spec_path>` and exit with non-zero status.
+6) Locate TOC RST file `<component>_component_test.rst` under `spec_path` using a recursive search. Selection precedence if multiple matches: (1) file at the root of `spec_path`; (2) shallowest relative depth; (3) lexicographically smallest path. If not found, log `ERROR <component>_component_test.rst not found under <spec_path> (recursive search)` and exit with non-zero status.
 7) In the TOC RST directory:
    - Delete any files starting with `<Component>_oAW_` and ending with `.rst` (exclude the TOC file itself).
    - Open the TOC RST and remove any line starting with `<Component>_oAW_`.
@@ -212,6 +212,7 @@ Precedence: CLI overrides > values in `config.json`.
 9.4 Extensibility
 - Conversion mapping is isolated in a function; can extend with additional groups.
 - Parsing is section-based; adding new sections should not break existing behavior.
+- TOC discovery supports recursive search with deterministic selection; behavior can be adjusted by changing the selector in `lib/file_generator.find_toc_rst`.
 
 9.5 Idempotence and Safety
 - Prior cleanup guarantees idempotent TOC entries.
