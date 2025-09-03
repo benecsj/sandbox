@@ -21,15 +21,15 @@
    .. sw_test_step:: {{ step.file_display_name }}
       :id: TSS_{{ section }}_{{ step.id1 }}
       :collapse: true
-
-   .. sw_test_step:: 1
-      :id: TSS_{{ section }}_{{ step.id2 }}
+{% for sub in step.substeps %}
+   .. sw_test_step:: {{ sub.index }}
+      :id: TSS_{{ section }}_{{ sub.id }}
       :collapse: true
-{{ step.tests_line }}
+{{ sub.tests_line }}
 
-{{ step.desc_lines | join('\n') }}
+{{ sub.desc_lines | join('\n') }}
+{% if sub.input_lines %}
+{{ sub.input_lines | join('\n') }}
 
-{{ step.input_lines | join('\n') }}
-
-{{ step.output_lines | join('\n') }}
+{{ sub.output_lines | join('\n') }}{% endif %}{% endfor %}
 {% endfor %}

@@ -45,6 +45,19 @@ class TestSpecificStepContents(UnifiedTestCase):
         self.assert_contains(self.val, ".. sw_test_step:: Bogus_Validate_Config")
         self.assert_contains(self.val, "Output: Validation report without errors.")
 
+        # Splitting behavior: subsequent numeric steps echo description but omit Input/Output
+        self.assert_contains(self.gen, ".. sw_test_step:: Bogus_Generate_SplitTags")
+        # Step 2 present with same Description
+        self.assert_contains(self.gen, ".. sw_test_step:: 2")
+        self.assert_contains(
+            self.gen, "Description: Validate splitting of requirements into multiple numeric steps when exceeding threshold."
+        )
+        # Ensure Input is not repeated under step 2
+        self.assert_not_regex_file(
+            self.gen,
+            r"\.. sw_test_step:: 2[\s\S]*?\n\s*Input:",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
