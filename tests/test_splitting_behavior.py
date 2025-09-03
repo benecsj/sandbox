@@ -37,7 +37,7 @@ class TestSplittingBehavior(UnifiedTestCase):
         step_headers = re.findall(r"^\s*\.\. sw_test_step:: (\d+)\s*$", segment, re.MULTILINE)
         self.assertTrue("1" in step_headers and "2" in step_headers)
 
-        # Collect per-step text regions and count tags (7 and 2 respectively)
+        # Check that step 1 contains seven tags and step 2 contains two
         def collect_tests_after_step(step_number: int) -> str:
             pattern = rf"^\s*\.\. sw_test_step:: {step_number}\s*$([\s\S]*?)^(?:\s*\.\. sw_test_step:: |\Z)"
             m = re.search(pattern, segment, re.MULTILINE)
@@ -46,13 +46,16 @@ class TestSplittingBehavior(UnifiedTestCase):
         step1 = collect_tests_after_step(1)
         step2 = collect_tests_after_step(2)
 
+        # Extract tags lines
         def extract_tags(block: str) -> list[str]:
             lines = []
             for ln in block.splitlines():
                 if ln.strip().startswith(":tests:"):
                     lines.append(ln.split(":tests:", 1)[1].strip())
-                elif ln.startswith("              ") and ln.strip():
+                elif ln.startswith("              ") and ln.strip():  # 14 spaces continuation
                     lines.append(ln.strip())
+                elif lines and ln.strip() == "":
+                    break
             text = " ".join(lines)
             return [p.strip() for p in text.replace(",", " ").split() if p.strip()]
 

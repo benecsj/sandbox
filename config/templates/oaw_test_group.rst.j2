@@ -26,10 +26,10 @@
       :id: TSS_{{ section }}_{{ sub.id }}
       :collapse: true
 {{ sub.tests_line }}
+
 {{ sub.desc_lines | join('\n') }}
 {% if sub.input_lines %}
 {{ sub.input_lines | join('\n') }}
-{{ sub.output_lines | join('\n') }}
-{% endif %}
-{% endfor %}
+
+{{ sub.output_lines | join('\n') }}{% endif %}{% endfor %}
 {% endfor %}
