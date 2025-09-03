@@ -285,28 +285,22 @@ def generate_group_rst(
         lines.append("   :tst_type: Manual")
         lines.append("   :tst_env: Generator-Test")
         lines.append(f"   :tests: {tests_agg}")
-        lines.append("")
         lines.append("   See descriptions below")
         for step in steps:
             lines.append(f"   .. sw_test_step:: {step['file_display_name']}")
             lines.append(f"      :id: TSS_{section}_{step['id1']}")
             lines.append("      :collapse: true")
-            lines.append("")
             for sub in step["substeps"]:
                 lines.append(f"   .. sw_test_step:: {sub['index']}")
                 lines.append(f"      :id: TSS_{section}_{sub['id']}")
                 lines.append("      :collapse: true")
                 lines.append(sub["tests_line"])
-                lines.append("")
                 # Description (always present)
                 lines.extend(sub["desc_lines"])
-                lines.append("")
                 if sub["input_lines"]:
                     lines.extend(sub["input_lines"])
-                    lines.append("")
                     lines.extend(sub["output_lines"])
                 # If no input/output lines for this substep, do not add extra trailing blank lines
-        lines.append("")
         content = "\n".join(lines)
 
     try:

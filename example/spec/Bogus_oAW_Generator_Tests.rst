@@ -19,74 +19,55 @@ Bogus_oAW_Generator_Tests
            BSW_SEC_ModulesHere_Bogus-1007, BSW_SEC_ModulesHere_Bogus-1008, BSW_SEC_ModulesHere_Bogus-1009,
            BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001,
            BSW_SEC_ModulesHere_Bogus-9001
-
    See descriptions below
    .. sw_test_step:: Bogus_Generate_KeyManagement
       :id: TSS_Bogus_oAW_Generator_Tests_0001
       :collapse: true
-
    .. sw_test_step:: 1
       :id: TSS_Bogus_oAW_Generator_Tests_0002
       :collapse: true
       :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001
-
       Description: Validates code generation for key management components.
-
       Input: Key management configuration set.
-
       Output: Generated key management sources and headers.
    .. sw_test_step:: Bogus_Generate_MultilineExample
       :id: TSS_Bogus_oAW_Generator_Tests_0003
       :collapse: true
-
    .. sw_test_step:: 1
       :id: TSS_Bogus_oAW_Generator_Tests_0004
       :collapse: true
       :tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-9001
-
       Description: This is a multi-line description for the generator test.
                    It spans multiple lines to validate parsing behavior.
-
       Input: First line of input description.
              Second line of input description.
-
       Output: First line of output description.
               Second line of output description.
    .. sw_test_step:: Bogus_Generate_Primitives
       :id: TSS_Bogus_oAW_Generator_Tests_0005
       :collapse: true
-
    .. sw_test_step:: 1
       :id: TSS_Bogus_oAW_Generator_Tests_0006
       :collapse: true
       :tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770
-
       Description: Validates code generation for basic bogus primitives
                    across supported targets.
-
       Input: Configurations for AES/HMAC primitive generation.
-
       Output: Generated source files and headers for primitives.
    .. sw_test_step:: Bogus_Generate_SplitTags
       :id: TSS_Bogus_oAW_Generator_Tests_0007
       :collapse: true
-
    .. sw_test_step:: 1
       :id: TSS_Bogus_oAW_Generator_Tests_0008
       :collapse: true
       :tests: BSW_SEC_ModulesHere_Bogus-1001, BSW_SEC_ModulesHere_Bogus-1002, BSW_SEC_ModulesHere_Bogus-1003,
               BSW_SEC_ModulesHere_Bogus-1004, BSW_SEC_ModulesHere_Bogus-1005, BSW_SEC_ModulesHere_Bogus-1006,
               BSW_SEC_ModulesHere_Bogus-1007
-
       Description: Validate splitting of requirements into multiple numeric steps when exceeding threshold.
-
       Input: Minimal configuration to trigger requirements splitting behavior.
-
       Output: Generated documentation should contain multiple steps with partitioned requirements.
    .. sw_test_step:: 2
       :id: TSS_Bogus_oAW_Generator_Tests_0009
       :collapse: true
       :tests: BSW_SEC_ModulesHere_Bogus-1008, BSW_SEC_ModulesHere_Bogus-1009
-
       Description: Validate splitting of requirements into multiple numeric steps when exceeding threshold.
-
