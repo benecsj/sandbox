@@ -12,6 +12,28 @@
       "justMyCode": true
     },
     {
+      "name": "Python: oaw_to_rst (Test Config)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/oaw_to_rst.py",
+      "args": [
+        "--config",
+        "./test/config.json"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Python: run_test (Run all tests)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/run_test.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "name": "Python: oaw_to_rst (External Config)",
       "type": "python",
       "request": "launch",
@@ -34,4 +56,3 @@
     }
   ]
 }
-

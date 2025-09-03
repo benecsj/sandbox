@@ -48,17 +48,27 @@ def group_tsc_files_by_group(component: str, tsc_files: List[Path]) -> Dict[str,
     """Group TSC files by their embedded group token."""
 
     groups: Dict[str, List[Path]] = {}
+    comp_prefix = component + "_"
     for file_path in tsc_files:
         stem = file_path.stem
-        parts = stem.split("_")
-        if len(parts) < 3 or parts[0] != component:
+        if not stem.startswith(comp_prefix):
             collect_error(
                 file_path,
                 1,
                 "No valid group token in filename",
             )
             continue
-        group = parts[1]
+        # Remove the component prefix and split the rest
+        rest = stem[len(comp_prefix):]
+        parts = rest.split("_")
+        if len(parts) < 2:
+            collect_error(
+                file_path,
+                1,
+                "No valid group token in filename",
+            )
+            continue
+        group = parts[0]
         groups.setdefault(group, []).append(file_path)
     for group_name in groups:
         groups[group_name].sort()

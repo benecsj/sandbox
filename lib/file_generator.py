@@ -4,9 +4,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Tuple
 from textwrap import TextWrapper
+from jinja2 import Environment, FileSystemLoader
 from .utils import report_error, report_warning
 from .file_handler import TscHeader
-from jinja2 import Environment, FileSystemLoader
 
 
 def convert_group_name(group: str, group_name_mappings: Dict[str, str]) -> str:
@@ -17,38 +17,30 @@ def convert_group_name(group: str, group_name_mappings: Dict[str, str]) -> str:
 
 
 def find_toc_rst(component: str, spec_path: Path) -> Path:
-    """Locate the component's TOC RST file under ``spec_path`` (recursive).
+    """Locate the component's TOC RST file by searching recursively.
 
-    Preference order when multiple matches exist:
-    1) File located at the root of ``spec_path``
-    2) Shallowest relative depth (fewest path parts)
-    3) Lexicographically smallest path for deterministic selection
+    Searches depth-first under ``spec_path`` for ``{component}_component_test.rst``.
+    Raises an error if not found.
     """
 
     toc_name = f"{component}_component_test.rst"
-    root_candidate = spec_path / toc_name
 
-    # Prefer the TOC file at the root if it exists
-    if root_candidate.exists():
-        selected = root_candidate
+    # First, check the exact path for backward compatibility
+    candidate = spec_path / toc_name
+    if candidate.exists():
+        found = candidate
     else:
-        # Search recursively for any matching TOC file
+        # Search recursively under spec_path
         matches = list(spec_path.rglob(toc_name))
         if not matches:
-            report_error(root_candidate, 1, f"{toc_name} not found under {spec_path} (recursive search)")
-
-        # If there are multiple matches, pick the shallowest; tie-break lexicographically
-        def sort_key(p: Path) -> tuple[int, str]:
-            rel = p.relative_to(spec_path)
-            return (len(rel.parts), str(p))
-
-        matches.sort(key=sort_key)
-        selected = matches[0]
+            report_error(candidate, 1, f"{toc_name} not found under {spec_path}")
+        # Prefer the first match (Path.rglob returns in directory order)
+        found = matches[0]
 
     print("Table of content rst file:")
-    print(f"{selected}")
+    print(f"{found}")
     print("")
-    return selected.resolve()
+    return found.resolve()
 
 
 def cleanup_generated_group_files(component: str, toc_path: Path) -> None:

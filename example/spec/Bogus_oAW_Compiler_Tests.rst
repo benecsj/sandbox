@@ -18,7 +18,6 @@ Bogus_oAW_Compiler_Tests
 
    See descriptions below
 
-
    .. sw_test_step:: Bogus_Compile_KeyManagement
       :id: TSS_Bogus_oAW_Compiler_Tests_0001
       :collapse: true
@@ -34,7 +33,6 @@ Bogus_oAW_Compiler_Tests
 
       Output: Successful compilation artifacts for key management.
 
-
    .. sw_test_step:: Bogus_Compile_Primitives
       :id: TSS_Bogus_oAW_Compiler_Tests_0003
       :collapse: true
@@ -49,5 +47,3 @@ Bogus_oAW_Compiler_Tests
       Input: Generated bogus primitive sources.
 
       Output: Successful compilation artifacts without warnings treated as errors.
-
-

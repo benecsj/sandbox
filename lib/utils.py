@@ -1,4 +1,4 @@
-"""Utility helpers for status banners."""
+"""Utility helpers for status banners and dependency management."""
 
 from __future__ import annotations
 
@@ -82,6 +82,3 @@ def report_warning(file: Path, line: int, message: str) -> None:
     global HAS_WARNINGS
     HAS_WARNINGS = True
     print(f"{file}:{line}: (WARNING) {message}", file=sys.stderr)
-
-
-# ensure_jinja2_installed has been removed; dependencies must be preinstalled.
