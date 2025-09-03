@@ -4,7 +4,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Tuple
 from textwrap import TextWrapper
-from jinja2 import Environment, FileSystemLoader
+try:
+    from jinja2 import Environment, FileSystemLoader  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    Environment = None  # type: ignore
+    FileSystemLoader = None  # type: ignore
 from .utils import report_error, report_warning
 from .file_handler import TscHeader
 
@@ -186,47 +190,124 @@ def generate_group_rst(
         file_display_name = p.stem
         id1 = f"{counter:04d}"
         counter += 1
-        id2 = f"{counter:04d}"
-        counter += 1
 
-        tests_line = build_tests_line(p, hdr)
-        desc_lines = build_field_lines("Description", hdr.description, hdr.desc_line, p)
-        input_lines = build_field_lines("Input", hdr.input_text, hdr.input_line, p)
-        output_lines = build_field_lines("Output", hdr.output_text, hdr.output_line, p)
+        # Build common field lines once
+        desc_lines_full = build_field_lines("Description", hdr.description, hdr.desc_line, p)
+        input_lines_full = build_field_lines("Input", hdr.input_text, hdr.input_line, p)
+        output_lines_full = build_field_lines("Output", hdr.output_text, hdr.output_line, p)
+
+        # Split requirements into chunks of up to 7 tags per numeric step
+        reqs = hdr.requirements or []
+        # Always create at least one substep
+        chunks: List[List[str]] = [reqs[i : i + 7] for i in range(0, len(reqs), 7)] or [[]]
+
+        substeps = []
+        for idx, chunk in enumerate(chunks, start=1):
+            idn = f"{counter:04d}"
+            counter += 1
+
+            # Build tests line for this chunk
+            if chunk:
+                per_file_tests = format_tests_value(chunk, delimiter=" ", max_width=120, indent_spaces=14)
+                tests_line = f"      :tests: {per_file_tests}"
+            else:
+                # No requirements present; fall back to warning + TODO like original behavior
+                tests_line = build_tests_line(p, hdr)
+
+            # Only first numeric step contains Input/Output blocks. Others repeat Description only.
+            if idx == 1:
+                desc_lines = desc_lines_full
+                input_lines = input_lines_full
+                output_lines = output_lines_full
+            else:
+                desc_lines = desc_lines_full
+                input_lines = []
+                output_lines = []
+
+            substeps.append(
+                {
+                    "index": idx,
+                    "id": idn,
+                    "tests_line": tests_line,
+                    "desc_lines": desc_lines,
+                    "input_lines": input_lines,
+                    "output_lines": output_lines,
+                }
+            )
 
         steps.append(
             {
                 "file_display_name": file_display_name,
                 "id1": id1,
-                "id2": id2,
-                "tests_line": tests_line,
-                "desc_lines": desc_lines,
-                "input_lines": input_lines,
-                "output_lines": output_lines,
+                "substeps": substeps,
             }
         )
 
-    env = Environment(
-        loader=FileSystemLoader(str(template_dir)),
-        autoescape=False,
-        trim_blocks=False,
-        lstrip_blocks=False,
-        keep_trailing_newline=True,
-    )
-    template = env.get_template("oaw_test_group.rst.j2")
-
     title = f"{group_conv} Test Specification - oAW tests"
     section = f"{component}_oAW_{group_conv}_Tests"
-    content = template.render(
-        title=title,
-        underline="=" * max(len(title), 120),
-        component=component,
-        group=group,
-        group_conv=group_conv,
-        section=section,
-        tests_agg=tests_agg,
-        steps=steps,
-    )
+
+    if Environment is not None:
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            autoescape=False,
+            trim_blocks=False,
+            lstrip_blocks=False,
+            keep_trailing_newline=True,
+        )
+        template = env.get_template("oaw_test_group.rst.j2")
+        content = template.render(
+            title=title,
+            underline="=" * max(len(title), 120),
+            component=component,
+            group=group,
+            group_conv=group_conv,
+            section=section,
+            tests_agg=tests_agg,
+            steps=steps,
+        )
+    else:
+        # Fallback renderer without Jinja2
+        lines: List[str] = []
+        lines.append(title)
+        lines.append("=" * max(len(title), 120))
+        lines.append("")
+        lines.append(section)
+        lines.append("-" * len(section))
+        lines.append("")
+        lines.append(f".. sw_test:: {section}")
+        lines.append(f"   :id: TS_{section}")
+        lines.append(f"   :tst_shortdescription: Tests for successful {group} of {component}")
+        lines.append("   :tst_level: Component Requirement Test")
+        lines.append(f"   :tst_designdoc: {component}_VerificationDocumentation.docx")
+        lines.append("   :tst_envconditions: oAW on PC")
+        lines.append("   :tst_method: Interface tests/API tests")
+        lines.append("   :tst_preparation: nothing specific")
+        lines.append("   :tst_type: Manual")
+        lines.append("   :tst_env: Generator-Test")
+        lines.append(f"   :tests: {tests_agg}")
+        lines.append("")
+        lines.append("   See descriptions below")
+        for step in steps:
+            lines.append(f"   .. sw_test_step:: {step['file_display_name']}")
+            lines.append(f"      :id: TSS_{section}_{step['id1']}")
+            lines.append("      :collapse: true")
+            lines.append("")
+            for sub in step["substeps"]:
+                lines.append(f"   .. sw_test_step:: {sub['index']}")
+                lines.append(f"      :id: TSS_{section}_{sub['id']}")
+                lines.append("      :collapse: true")
+                lines.append(sub["tests_line"])
+                lines.append("")
+                # Description (always present)
+                lines.extend(sub["desc_lines"])
+                lines.append("")
+                if sub["input_lines"]:
+                    lines.extend(sub["input_lines"])
+                    lines.append("")
+                    lines.extend(sub["output_lines"])
+                # If no input/output lines for this substep, do not add extra trailing blank lines
+        lines.append("")
+        content = "\n".join(lines)
 
     try:
         out_path.write_text(content, encoding="utf-8")

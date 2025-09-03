@@ -171,7 +171,11 @@ Precedence: CLI overrides > values in `config.json`.
       Output: <Output text of the .tsc file; continuation lines aligned under value>
 ```
 
-  - For each additional `.tsc` file in the group, repeat the two `.. sw_test_step::` blocks and continue incrementing the 4-digit IDs globally within this group file (i.e., two IDs per file).
+  - For each `.tsc` file:
+    - Emit an anchor step `.. sw_test_step:: <Name of the file without extension>` followed by one or more numbered steps.
+    - If the file has more than 7 requirement tags, split its tags into chunks of 7 per numbered step. Example: 9 tags → step `1` has 7 tags, step `2` has 2 tags.
+    - Only the first numbered step includes full Description, Input, and Output. Additional numbered steps repeat the same Description and omit Input/Output.
+    - Continue incrementing the 4-digit IDs globally within the group file for every emitted step block (one id for the anchor, one per numbered step).
   - Line wrapping of long `:tests:` lines: wrap at 120 characters; continuation lines must be indented with exactly 11 spaces (group header) and 14 spaces (per-file lines).
   - All content is overwritten on each run (freshly generated after cleanup).
 

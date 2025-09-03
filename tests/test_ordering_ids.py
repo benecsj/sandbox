@@ -24,9 +24,10 @@ class TestOrderingAndIds(UnifiedTestCase):
             self.cmp,
             ":tests: BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-6001, BSW_SEC_ModulesHere_Bogus-8001",
         )
+        # Generator gains additional tags from the splitting sample; ensure sorted order begins with 1001,1002,1003
         self.assert_contains(
             self.gen,
-            ":tests: BSW_SEC_ModulesHere_Bogus-5048, BSW_SEC_ModulesHere_Bogus-5770, BSW_SEC_ModulesHere_Bogus-8001",
+            ":tests: BSW_SEC_ModulesHere_Bogus-1001, BSW_SEC_ModulesHere_Bogus-1002, BSW_SEC_ModulesHere_Bogus-1003",
         )
 
     def test_group_ids_present(self) -> None:
@@ -83,7 +84,7 @@ class TestOrderingAndIds(UnifiedTestCase):
                     f"Count/unique/sort mismatch: count={len(tokens)} expected={expected_count} unique={len(unique)} sorted={is_sorted}"
                 )
 
-        assert_group_header_token_set(self.gen, 4)
+        assert_group_header_token_set(self.gen, 13)
         assert_group_header_token_set(self.cmp, 3)
         assert_group_header_token_set(self.val, 24)
 
@@ -95,9 +96,9 @@ class TestOrderingAndIds(UnifiedTestCase):
             )
 
         for path, expected in [
-            (self.gen, 6),
+            (self.gen, 9),  # 3 existing files * 2 + 1 split file (1 + 2) = 9
             (self.cmp, 4),
-            (self.val, 4),
+            (self.val, 7),  # 1 empty header (2) + 1 split (1 + 4) = 7
         ]:
             count = count_step_blocks(path)
             if count != expected:

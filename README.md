@@ -60,6 +60,11 @@ Formatting specifics:
   - Group header continuation indent: 11 spaces
   - Per-file `:tests:` continuation indent: 14 spaces
 - Multi-line Description/Input/Output values align continuation lines under the value start
+- If a `.tsc` file has more than 7 requirement tags, the per-file step is split into multiple numeric steps:
+  - Step blocks are chunked in groups of 7 tags (e.g., 9 tags -> step `1` has 7, step `2` has 2)
+  - Only the first numeric step includes full Description, Input, and Output
+  - Subsequent numeric steps repeat the same Description and omit Input/Output
+  - The structure mirrors the legacy style: an anchor step with the file name, then numbered steps with `:tests:`
 - Placeholder header (all four headers present but empty) generates TODO lines referencing the `.tsc` filename for all fields
 
 Group name normalization for filenames and titles:

@@ -1,0 +1,13 @@
+// Description
+// Validate splitting of requirements into multiple numeric steps when exceeding threshold.
+// Input
+// Minimal configuration to trigger requirements splitting behavior.
+// Output
+// Generated documentation should contain multiple steps with partitioned requirements.
+// Requirements
+// BSW_SEC_ModulesHere_Bogus-1001, BSW_SEC_ModulesHere_Bogus-1002, BSW_SEC_ModulesHere_Bogus-1003,
+// BSW_SEC_ModulesHere_Bogus-1004, BSW_SEC_ModulesHere_Bogus-1005, BSW_SEC_ModulesHere_Bogus-1006,
+// BSW_SEC_ModulesHere_Bogus-1007, BSW_SEC_ModulesHere_Bogus-1008, BSW_SEC_ModulesHere_Bogus-1009
+
+# body intentionally omitted
+
